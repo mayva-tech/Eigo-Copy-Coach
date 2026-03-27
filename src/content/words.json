@@ -1,0 +1,39 @@
+{
+  "words": [
+    {
+      "id": "knife",
+      "word": "knife",
+      "difficulty": "beginner",
+      "lessonType": "silent-letter",
+      "audioKey": null
+    },
+    {
+      "id": "world",
+      "word": "world",
+      "difficulty": "beginner",
+      "lessonType": "consonant-blend",
+      "audioKey": null
+    },
+    {
+      "id": "think",
+      "word": "think",
+      "difficulty": "beginner",
+      "lessonType": "th-sound",
+      "audioKey": null
+    },
+    {
+      "id": "very",
+      "word": "very",
+      "difficulty": "beginner",
+      "lessonType": "v-r",
+      "audioKey": null
+    },
+    {
+      "id": "comfortable",
+      "word": "comfortable",
+      "difficulty": "intermediate",
+      "lessonType": "stress",
+      "audioKey": null
+    }
+  ]
+}
