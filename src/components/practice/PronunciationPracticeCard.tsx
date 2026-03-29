@@ -1,6 +1,7 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import type { WordEntry } from '@/src/types/content';
+import { pressScaleStyle } from '@/src/utils/pressScale';
 import { useScreenColors } from '@/src/utils/screen-colors';
 
 type Props = {
@@ -39,21 +40,34 @@ export function PronunciationPracticeCard({
         accessibilityRole="button"
         accessibilityLabel={labels.a11yListen}
         onPress={onListen}
-        style={[styles.listenBtn, { backgroundColor: c.tint }]}>
+        style={({ pressed }) => [styles.listenBtn, { backgroundColor: c.tint }, pressScaleStyle(pressed)]}>
         <Text style={styles.listenBtnText}>{labels.tapToListen}</Text>
       </Pressable>
       <Text style={[styles.guidance, { color: c.textMuted }]}>{guidanceTip}</Text>
       <View style={styles.actions}>
-        <Pressable style={[styles.action, { backgroundColor: chipBg }]} onPress={onListen}>
+        <Pressable
+          style={({ pressed }) => [styles.action, { backgroundColor: chipBg }, pressScaleStyle(pressed)]}
+          onPress={onListen}>
           <Text style={[styles.actionText, { color: c.text }]}>{labels.listenAgain}</Text>
         </Pressable>
-        <Pressable style={[styles.action, { backgroundColor: chipBg }]} onPress={onRecord}>
+        <Pressable
+          style={({ pressed }) => [styles.action, { backgroundColor: chipBg }, pressScaleStyle(pressed)]}
+          onPress={onRecord}>
           <Text style={[styles.actionText, { color: c.text }]}>{labels.record}</Text>
         </Pressable>
-        <Pressable style={[styles.action, { backgroundColor: chipBg }]} onPress={onCompare}>
+        <Pressable
+          style={({ pressed }) => [styles.action, { backgroundColor: chipBg }, pressScaleStyle(pressed)]}
+          onPress={onCompare}>
           <Text style={[styles.actionText, { color: c.text }]}>{labels.compare}</Text>
         </Pressable>
-        <Pressable style={[styles.action, styles.actionPrimary, { backgroundColor: c.tint }]} onPress={onNext}>
+        <Pressable
+          style={({ pressed }) => [
+            styles.action,
+            styles.actionPrimary,
+            { backgroundColor: c.tint },
+            pressScaleStyle(pressed),
+          ]}
+          onPress={onNext}>
           <Text style={[styles.actionText, styles.actionPrimaryText]}>{labels.next}</Text>
         </Pressable>
       </View>
@@ -64,8 +78,9 @@ export function PronunciationPracticeCard({
 const styles = StyleSheet.create({
   card: {
     borderRadius: 16,
-    padding: 20,
-    gap: 12,
+    paddingHorizontal: 20,
+    paddingVertical: 15,
+    gap: 9,
   },
   word: {
     fontSize: 32,
@@ -74,7 +89,7 @@ const styles = StyleSheet.create({
   },
   listenBtn: {
     alignSelf: 'flex-start',
-    paddingVertical: 10,
+    paddingVertical: 8,
     paddingHorizontal: 16,
     borderRadius: 10,
   },
@@ -91,10 +106,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: 8,
-    marginTop: 4,
+    marginTop: 2,
   },
   action: {
-    paddingVertical: 8,
+    paddingVertical: 6,
     paddingHorizontal: 12,
     borderRadius: 8,
   },

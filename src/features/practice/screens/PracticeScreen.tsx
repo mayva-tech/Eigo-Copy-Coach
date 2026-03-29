@@ -1,38 +1,149 @@
-import { router, useLocalSearchParams } from 'expo-router';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { createAudioPlayer, type AudioPlayer } from 'expo-audio';
+import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useCallback, useEffect, useRef } from 'react';
+import { Alert, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+
 import AppButton from '@/src/components/common/AppButton';
 import ScreenHeader from '@/src/components/common/ScreenHeader';
 import AttemptScoreCard from '@/src/components/practice/AttemptScoreCard';
 import MouthCoachCard from '@/src/components/practice/MouthCoachCard';
 import RecordingPanel from '@/src/components/practice/RecordingPanel';
-import SoundBlockChip from '@/src/components/practice/SoundBlockChip';
 import WordHeroCard from '@/src/components/practice/WordHeroCard';
 import WrongCorrectCard from '@/src/components/practice/WrongCorrectCard';
 import { colors } from '@/src/constants/colors';
 import { ROUTES } from '@/src/constants/routes';
+import { useAudioPractice } from '@/src/features/practice/hooks/useAudioPractice';
 import { usePracticeSession } from '@/src/features/practice/hooks/usePracticeSession';
+import { playUri } from '@/src/services/audio/audioPlaybackService';
+import { speakEnglishWord } from '@/src/services/audio/referenceSpeech';
+import { getPremiumVoicePaywallTrigger } from '@/src/services/paywall/paywallTriggers';
+import { getLessonAudio } from '@/src/services/tts/getLessonAudio';
+import { usePlanStore } from '@/src/store/planStore';
 
+/**
+ * Practice reference audio — locked behavior (do not regress):
+ * - **Play / Slow** = core practice reference only. Free → on-device TTS; premium → backend MP3.
+ *   Never opens paywall. Recording, scoring, review queue, and next/prev word flows stay untouched.
+ * - **Natural voice** = free-only preview CTA (`plan === 'free'`). Hidden for premium subscribers.
+ * - **Paywall** = only when free preview quota is exhausted (`getPremiumVoicePaywallTrigger`), on Natural voice.
+ * - **Fallback** = if backend/file playback fails or player is missing, always `speakEnglishWord` (learner still hears something).
+ */
 export default function PracticeScreen() {
+  const router = useRouter();
   const params = useLocalSearchParams<{ lessonId?: string }>();
   const lessonId = params.lessonId ?? 'lesson-01';
+
+  const plan = usePlanStore((state) => state.plan);
+  const premiumHearCount = usePlanStore((state) => state.premiumHearCount);
+  const incrementPremiumHearCount = usePlanStore((state) => state.incrementPremiumHearCount);
+  const markPaywallSeen = usePlanStore((state) => state.markPaywallSeen);
+
+  const referencePlayerRef = useRef<AudioPlayer | null>(null);
+
+  useEffect(() => {
+    const p = createAudioPlayer(null);
+    p.volume = 1.0;
+    p.muted = false;
+    referencePlayerRef.current = p;
+    return () => {
+      referencePlayerRef.current?.remove();
+    };
+  }, []);
 
   const {
     currentWord,
     currentIndex,
     words,
     progressLabel,
-    isRecording,
-    selectedBlockId,
     feedback,
-    playNormal,
-    playSlow,
-    selectBlock,
-    startRecording,
-    stopRecording,
+    recordedUri,
+    applyReferenceFeedback,
+    registerAttemptResult,
     nextWord,
     previousWord,
   } = usePracticeSession(lessonId);
+
+  const audio = useAudioPractice(recordedUri);
+
+  /** Practice screen: only called when free Natural-voice previews are exhausted — not from Play/Slow. */
+  const openPaywall = useCallback(
+    (reason: string) => {
+      markPaywallSeen();
+      router.push({ pathname: '/paywall', params: { reason } });
+    },
+    [markPaywallSeen, router],
+  );
+
+  /**
+   * Core practice reference (Play / Slow). No paywall on this path.
+   * @returns Free core: true after device TTS. Premium/preview pipeline: true only if `file://` playback succeeded;
+   *   false if missing player, fetch error, or `speakEnglishWord` fallback (preview quota increments only on true).
+   */
+  const handlePlayReferenceAudio = useCallback(
+    async (mode: 'normal' | 'slow', usePremiumVoice: boolean): Promise<boolean> => {
+      if (!currentWord) return false;
+
+      applyReferenceFeedback(mode);
+
+      if (!usePremiumVoice && plan === 'free') {
+        void speakEnglishWord(currentWord.word, mode === 'slow' ? 'slow' : 'normal');
+        return true;
+      }
+
+      try {
+        const audioUri = await getLessonAudio({
+          text: currentWord.word,
+          usePremiumVoice,
+          mode,
+        });
+
+        const player = referencePlayerRef.current;
+        if (!player) {
+          void speakEnglishWord(currentWord.word, mode === 'slow' ? 'slow' : 'normal');
+          return false;
+        }
+
+        await playUri(player, audioUri);
+        return true;
+      } catch (error) {
+        console.error('Failed to play reference audio', error);
+        void speakEnglishWord(currentWord.word, mode === 'slow' ? 'slow' : 'normal');
+        return false;
+      }
+    },
+    [applyReferenceFeedback, currentWord, plan],
+  );
+
+  /** Free-only Natural voice: backend preview until quota exhausted, then paywall. Premium users never see this CTA. */
+  const handlePremiumPreviewTap = useCallback(() => {
+    if (plan !== 'free') return;
+
+    const paywallCheck = getPremiumVoicePaywallTrigger({
+      plan,
+      premiumHearCount,
+    });
+
+    if (paywallCheck.shouldShow) {
+      openPaywall(paywallCheck.reason ?? 'premium_voice_preview_limit');
+      return;
+    }
+
+    void (async () => {
+      const ok = await handlePlayReferenceAudio('normal', true);
+      if (ok) {
+        // Only increment after premium preview audio actually starts successfully.
+        // Do not increment on fallback-to-device-TTS cases.
+        incrementPremiumHearCount();
+      }
+    })();
+  }, [
+    handlePlayReferenceAudio,
+    incrementPremiumHearCount,
+    openPaywall,
+    plan,
+    premiumHearCount,
+  ]);
 
   if (!currentWord) {
     return (
@@ -48,6 +159,25 @@ export default function PracticeScreen() {
   const isFirst = currentIndex === 0;
   const isLast = currentIndex === words.length - 1;
 
+  const handleStartRecording = async () => {
+    try {
+      await audio.startRecording();
+    } catch (error) {
+      console.error(error);
+      Alert.alert('マイクが必要です', '録音するにはマイクの許可が必要です。');
+    }
+  };
+
+  const handleStopRecording = async () => {
+    try {
+      const uri = await audio.stopRecording();
+      await registerAttemptResult(uri);
+    } catch (error) {
+      console.error(error);
+      Alert.alert('録音エラー', '録音の停止に失敗しました。もう一度試してください。');
+    }
+  };
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
@@ -59,31 +189,12 @@ export default function PracticeScreen() {
 
         <WordHeroCard
           word={currentWord.word}
+          meaningJa={currentWord.meaningJa}
           sayItLike={currentWord.sayItLike}
-          onPlay={playNormal}
-          onSlow={playSlow}
+          onPlay={() => void handlePlayReferenceAudio('normal', plan === 'premium')}
+          onSlow={() => void handlePlayReferenceAudio('slow', plan === 'premium')}
+          onPremiumVoice={plan === 'free' ? handlePremiumPreviewTap : undefined}
         />
-
-        {!!currentWord.soundBlocks?.length && (
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>音のかたまり</Text>
-            <Text style={styles.sectionBody}>
-              1つずつ押して、音の形を分けてつかもう。
-            </Text>
-
-            <View style={styles.blocksWrap}>
-              {currentWord.soundBlocks.map((block) => (
-                <SoundBlockChip
-                  key={block.id}
-                  label={block.label}
-                  hint={block.hint}
-                  selected={selectedBlockId === block.id}
-                  onPress={() => selectBlock(block.id, block.label, block.hint)}
-                />
-              ))}
-            </View>
-          </View>
-        )}
 
         <WrongCorrectCard
           avoidGuide={currentWord.avoidGuide}
@@ -93,9 +204,14 @@ export default function PracticeScreen() {
         <MouthCoachCard mouthTipJa={currentWord.mouthTipJa} />
 
         <RecordingPanel
-          isRecording={isRecording}
-          onStart={startRecording}
-          onStop={stopRecording}
+          isRecording={audio.status.isRecording}
+          hasRecording={audio.status.hasRecording}
+          micGranted={audio.status.micGranted}
+          onStart={handleStartRecording}
+          onStop={handleStopRecording}
+          onReplay={() => {
+            void audio.playRecording();
+          }}
         />
 
         <AttemptScoreCard
@@ -133,33 +249,10 @@ const styles = StyleSheet.create({
     backgroundColor: colors.background,
   },
   container: {
-    padding: 20,
-    gap: 16,
-    paddingBottom: 32,
-  },
-  section: {
-    backgroundColor: colors.surface,
-    borderRadius: 24,
-    padding: 18,
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: '800',
-    color: colors.text,
-    marginBottom: 8,
-  },
-  sectionBody: {
-    fontSize: 15,
-    lineHeight: 22,
-    color: colors.textSoft,
-    marginBottom: 14,
-  },
-  blocksWrap: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 10,
+    paddingHorizontal: 20,
+    paddingTop: 16,
+    paddingBottom: 24,
+    gap: 11,
   },
   navRow: {
     gap: 12,
@@ -174,10 +267,11 @@ const styles = StyleSheet.create({
   },
   emptyWrap: {
     flex: 1,
-    padding: 20,
+    paddingHorizontal: 20,
+    paddingVertical: 16,
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 16,
+    gap: 11,
     backgroundColor: colors.background,
   },
   emptyTitle: {

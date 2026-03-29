@@ -34,6 +34,8 @@ export default function PracticeLayout() {
         name="[lessonId]"
         options={{
           headerBackVisible: true,
+          title: '',
+          headerTitle: () => null,
           headerLeft: (props) => (
             <HeaderBackButton
               {...props}

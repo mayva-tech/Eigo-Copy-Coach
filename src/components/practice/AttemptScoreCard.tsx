@@ -46,7 +46,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 10,
+    marginBottom: 6,
   },
   title: {
     flex: 1,
@@ -63,7 +63,7 @@ const styles = StyleSheet.create({
   scoreBadge: {
     minWidth: 50,
     paddingHorizontal: 12,
-    paddingVertical: 8,
+    paddingVertical: 5,
     borderRadius: 999,
     alignItems: 'center',
     justifyContent: 'center',

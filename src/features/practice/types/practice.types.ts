@@ -15,7 +15,6 @@ export type PracticeSessionState = {
   currentIndex: number;
   currentWord: WordItem | null;
   isRecording: boolean;
-  selectedBlockId: string | null;
   feedback: PracticeFeedback;
   attemptCount: number;
 };

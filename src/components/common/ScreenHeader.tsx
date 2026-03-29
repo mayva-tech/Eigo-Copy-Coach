@@ -3,7 +3,8 @@ import { colors } from '@/src/constants/colors';
 
 type ScreenHeaderProps = {
   eyebrow?: string;
-  title: string;
+  /** When omitted, the large title line is not rendered (e.g. when the stack header shows the same title). */
+  title?: string;
   subtitle?: string;
 };
 
@@ -14,8 +15,12 @@ export default function ScreenHeader({
 }: ScreenHeaderProps) {
   return (
     <View style={styles.wrap}>
-      {eyebrow ? <Text style={styles.eyebrow}>{eyebrow}</Text> : null}
-      <Text style={styles.title}>{title}</Text>
+      {eyebrow ? (
+        <Text style={[styles.eyebrow, !title && subtitle ? styles.eyebrowAboveSubtitle : null]}>
+          {eyebrow}
+        </Text>
+      ) : null}
+      {title ? <Text style={styles.title}>{title}</Text> : null}
       {subtitle ? <Text style={styles.subtitle}>{subtitle}</Text> : null}
     </View>
   );
@@ -23,7 +28,7 @@ export default function ScreenHeader({
 
 const styles = StyleSheet.create({
   wrap: {
-    marginBottom: 18,
+    marginBottom: 12,
   },
   eyebrow: {
     fontSize: 13,
@@ -31,14 +36,17 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase',
     letterSpacing: 0.7,
     color: colors.textMuted,
-    marginBottom: 6,
+    marginBottom: 4,
+  },
+  eyebrowAboveSubtitle: {
+    marginBottom: 8,
   },
   title: {
     fontSize: 30,
-    lineHeight: 36,
+    lineHeight: 34,
     fontWeight: '800',
     color: colors.text,
-    marginBottom: 6,
+    marginBottom: 4,
   },
   subtitle: {
     fontSize: 15,

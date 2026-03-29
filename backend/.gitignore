@@ -1,0 +1,6 @@
+node_modules
+.env
+dist
+
+# Keeps local secrets (e.g. google-tts-key.json) out of Git. Also ignores all other *.json here.
+*.json

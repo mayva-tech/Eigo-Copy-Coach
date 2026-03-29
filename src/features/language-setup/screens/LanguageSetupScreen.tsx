@@ -10,6 +10,7 @@ import { tUi } from '@/src/lib/i18n/resolveUi';
 import type { UiKey } from '@/src/lib/i18n/uiCatalog';
 import { SUPPORTED_LANGUAGE_CODES, type LanguageCode } from '@/src/types/language';
 import { useLanguageStore } from '@/src/store/language-store';
+import { pressScaleStyle } from '@/src/utils/pressScale';
 import { useScreenColors } from '@/src/utils/screen-colors';
 
 type Step = 'pick' | 'confirm';
@@ -74,9 +75,10 @@ export function LanguageSetupScreen() {
                   <Pressable
                     key={code}
                     onPress={() => onPickLanguage(code)}
-                    style={[
+                    style={({ pressed }) => [
                       styles.row,
                       { borderColor: active ? c.tint : 'transparent', backgroundColor: c.card },
+                      pressScaleStyle(pressed),
                     ]}>
                     <Text style={[styles.rowLabel, { color: c.text }]}>
                       {LANGUAGE_NATIVE_LABELS[code]}
@@ -85,7 +87,9 @@ export function LanguageSetupScreen() {
                 );
               })}
             </View>
-            <Pressable style={[styles.primary, { backgroundColor: c.tint }]} onPress={onContinueFromPick}>
+            <Pressable
+              style={({ pressed }) => [styles.primary, { backgroundColor: c.tint }, pressScaleStyle(pressed)]}
+              onPress={onContinueFromPick}>
               <Text style={styles.primaryLabel}>{label('languageSetup.continue')}</Text>
             </Pressable>
           </>
@@ -100,10 +104,12 @@ export function LanguageSetupScreen() {
               {label('languageSetup.confirmBody')}
             </Text>
             <Text style={[styles.chosen, { color: c.text }]}>{LANGUAGE_NATIVE_LABELS[selected]}</Text>
-            <Pressable style={[styles.primary, { backgroundColor: c.tint }]} onPress={onConfirmFinal}>
+            <Pressable
+              style={({ pressed }) => [styles.primary, { backgroundColor: c.tint }, pressScaleStyle(pressed)]}
+              onPress={onConfirmFinal}>
               <Text style={styles.primaryLabel}>{label('languageSetup.continue')}</Text>
             </Pressable>
-            <Pressable style={styles.secondary} onPress={onChange}>
+            <Pressable style={({ pressed }) => [styles.secondary, pressScaleStyle(pressed)]} onPress={onChange}>
               <Text style={[styles.secondaryLabel, { color: c.tint }]}>{label('languageSetup.change')}</Text>
             </Pressable>
           </>

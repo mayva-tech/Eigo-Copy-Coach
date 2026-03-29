@@ -37,7 +37,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '800',
     color: colors.text,
-    marginBottom: 14,
+    marginBottom: 9,
   },
   compareWrap: {
     flexDirection: 'row',
@@ -47,7 +47,8 @@ const styles = StyleSheet.create({
   },
   side: {
     flex: 1,
-    padding: 16,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
   },
   divider: {
     width: 1,
@@ -58,7 +59,7 @@ const styles = StyleSheet.create({
     fontWeight: '800',
     color: colors.dangerText,
     textTransform: 'uppercase',
-    marginBottom: 8,
+    marginBottom: 5,
   },
   badText: {
     fontSize: 20,
@@ -70,7 +71,7 @@ const styles = StyleSheet.create({
     fontWeight: '800',
     color: colors.successText,
     textTransform: 'uppercase',
-    marginBottom: 8,
+    marginBottom: 5,
   },
   goodText: {
     fontSize: 20,

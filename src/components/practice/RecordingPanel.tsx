@@ -1,18 +1,25 @@
 import { StyleSheet, Text, View } from 'react-native';
+
 import AppButton from '@/src/components/common/AppButton';
 import AppCard from '@/src/components/common/AppCard';
 import { colors } from '@/src/constants/colors';
 
 type RecordingPanelProps = {
   isRecording: boolean;
+  hasRecording: boolean;
+  micGranted: boolean;
   onStart: () => void;
   onStop: () => void;
+  onReplay: () => void;
 };
 
 export default function RecordingPanel({
   isRecording,
+  hasRecording,
+  micGranted,
   onStart,
   onStop,
+  onReplay,
 }: RecordingPanelProps) {
   return (
     <AppCard>
@@ -24,7 +31,11 @@ export default function RecordingPanel({
       <View style={styles.statusWrap}>
         <View style={[styles.dot, isRecording && styles.dotActive]} />
         <Text style={styles.statusText}>
-          {isRecording ? '録音中… 話してみよう' : '録音待機中'}
+          {isRecording
+            ? '録音中… 話してみよう'
+            : micGranted
+              ? '録音できます'
+              : 'マイク許可が必要です'}
         </Text>
       </View>
 
@@ -34,7 +45,15 @@ export default function RecordingPanel({
         ) : (
           <AppButton label="録音する" onPress={onStart} />
         )}
+
+        <AppButton label="自分の声を聞く" variant="secondary" onPress={onReplay} />
       </View>
+
+      {!hasRecording ? (
+        <Text style={styles.footnote}>まだ録音はありません。</Text>
+      ) : (
+        <Text style={styles.footnote}>最新の録音を再生できます。</Text>
+      )}
     </AppCard>
   );
 }
@@ -44,19 +63,19 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '800',
     color: colors.text,
-    marginBottom: 10,
+    marginBottom: 6,
   },
   body: {
     fontSize: 15,
     lineHeight: 22,
     color: colors.textSoft,
-    marginBottom: 14,
+    marginBottom: 10,
   },
   statusWrap: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 10,
-    marginBottom: 16,
+    marginBottom: 11,
   },
   dot: {
     width: 12,
@@ -73,6 +92,11 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   actions: {
-    marginTop: 4,
+    gap: 9,
+  },
+  footnote: {
+    marginTop: 8,
+    fontSize: 13,
+    color: colors.textMuted,
   },
 });

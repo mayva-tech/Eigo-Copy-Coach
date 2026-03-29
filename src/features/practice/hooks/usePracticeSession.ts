@@ -1,86 +1,103 @@
 import { useMemo, useState } from 'react';
-import { getLessonWords } from '@/src/services/content/lessonRepository';
+
 import { buildMockFeedback, getInitialFeedback } from '@/src/features/practice/utils/scoreHelpers';
 import type { PracticeFeedback } from '@/src/features/practice/types/practice.types';
+import { speakEnglishWord } from '@/src/services/audio/referenceSpeech';
+import { getLessonWords } from '@/src/services/content/lessonRepository';
+import { usePracticeStore } from '@/src/store/usePracticeStore';
+
+/** Words at or below this mock score are saved to the local review queue. */
+const REVIEW_SCORE_THRESHOLD = 85;
 
 export function usePracticeSession(lessonId: string) {
   const words = useMemo(() => getLessonWords(lessonId), [lessonId]);
 
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [selectedBlockId, setSelectedBlockId] = useState<string | null>(null);
-  const [isRecording, setIsRecording] = useState(false);
   const [attemptCount, setAttemptCount] = useState(0);
   const [feedback, setFeedback] = useState<PracticeFeedback>(getInitialFeedback());
+  const [recordedUri, setRecordedUri] = useState<string | null>(null);
+
+  const addReviewItem = usePracticeStore((state) => state.addReviewItem);
 
   const currentWord = words[currentIndex] ?? null;
   const progressLabel = `${Math.min(currentIndex + 1, words.length)} / ${words.length}`;
 
+  const applyReferenceFeedback = (mode: 'normal' | 'slow') => {
+    if (!currentWord) return;
+    if (mode === 'normal') {
+      setFeedback({
+        tone: 'neutral',
+        title: 'こう聞こえる',
+        body: currentWord.sayItLike,
+        score: null,
+      });
+    } else {
+      setFeedback({
+        tone: 'neutral',
+        title: 'ゆっくり聞く',
+        body: currentWord.slowGuide,
+        score: null,
+      });
+    }
+  };
+
   const playNormal = () => {
     if (!currentWord) return;
-    setFeedback({
-      tone: 'neutral',
-      title: 'こう聞こえる',
-      body: currentWord.sayItLike,
-      score: null,
-    });
+    void speakEnglishWord(currentWord.word, 'normal');
+    applyReferenceFeedback('normal');
   };
 
   const playSlow = () => {
     if (!currentWord) return;
-    setFeedback({
-      tone: 'neutral',
-      title: 'ゆっくり聞く',
-      body: currentWord.slowGuide,
-      score: null,
-    });
+    void speakEnglishWord(currentWord.word, 'slow');
+    applyReferenceFeedback('slow');
   };
 
-  const selectBlock = (blockId: string, blockLabel: string, hint: string) => {
-    setSelectedBlockId(blockId);
-    setFeedback({
-      tone: 'neutral',
-      title: `この音を意識`,
-      body: `${blockLabel} — ${hint}`,
-      score: null,
-    });
+  const resetWordState = () => {
+    setAttemptCount(0);
+    setRecordedUri(null);
+    setFeedback(getInitialFeedback());
   };
 
-  const startRecording = () => {
-    setIsRecording(true);
-    setFeedback({
-      tone: 'neutral',
-      title: '録音中',
-      body: '今の音をまねして言ってみよう。',
-      score: null,
-    });
-  };
-
-  const stopRecording = () => {
+  const registerAttemptResult = async (uri: string | null) => {
     if (!currentWord) return;
-    setIsRecording(false);
+
+    setRecordedUri(uri);
+
     const nextAttempt = attemptCount + 1;
     setAttemptCount(nextAttempt);
-    setFeedback(buildMockFeedback(currentWord, nextAttempt));
+
+    const nextFeedback = buildMockFeedback(currentWord, nextAttempt);
+    setFeedback(nextFeedback);
+
+    const score = nextFeedback.score ?? 0;
+    if (score < REVIEW_SCORE_THRESHOLD) {
+      addReviewItem({
+        id: `${currentWord.id}-${Date.now()}`,
+        wordId: currentWord.id,
+        word: currentWord.word,
+        sayItLike: currentWord.sayItLike,
+        avoidGuide: currentWord.avoidGuide,
+        mouthTipJa: currentWord.mouthTipJa,
+        score,
+        createdAt: Date.now(),
+        recordedUri: uri,
+      });
+    }
   };
 
   const nextWord = () => {
     if (!words.length) return;
     const nextIndex = Math.min(currentIndex + 1, words.length - 1);
     setCurrentIndex(nextIndex);
-    setSelectedBlockId(null);
-    setAttemptCount(0);
-    setFeedback(getInitialFeedback());
-    setIsRecording(false);
+    resetWordState();
   };
 
   const previousWord = () => {
     if (!words.length) return;
     const prevIndex = Math.max(currentIndex - 1, 0);
     setCurrentIndex(prevIndex);
-    setSelectedBlockId(null);
-    setAttemptCount(0);
-    setFeedback(getInitialFeedback());
-    setIsRecording(false);
+    resetWordState();
   };
 
   return {
@@ -88,15 +105,13 @@ export function usePracticeSession(lessonId: string) {
     currentWord,
     currentIndex,
     progressLabel,
-    isRecording,
-    selectedBlockId,
     attemptCount,
     feedback,
+    recordedUri,
+    applyReferenceFeedback,
     playNormal,
     playSlow,
-    selectBlock,
-    startRecording,
-    stopRecording,
+    registerAttemptResult,
     nextWord,
     previousWord,
   };

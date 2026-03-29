@@ -5,21 +5,39 @@ import { colors } from '@/src/constants/colors';
 
 type WordHeroCardProps = {
   word: string;
+  /** Japanese meaning — small reference text opposite the headword. */
+  meaningJa: string;
   sayItLike: string;
   onPlay: () => void;
   onSlow: () => void;
+  /** Free-only “Natural voice” preview CTA; omit for premium subscribers (button hidden). */
+  onPremiumVoice?: () => void;
 };
 
 export default function WordHeroCard({
   word,
+  meaningJa,
   sayItLike,
   onPlay,
   onSlow,
+  onPremiumVoice,
 }: WordHeroCardProps) {
   return (
     <AppCard>
       <Text style={styles.label}>Word</Text>
-      <Text style={styles.word}>{word}</Text>
+      <View style={styles.wordRow}>
+        <View style={styles.wordCell}>
+          <Text
+            style={styles.word}
+            numberOfLines={1}
+            adjustsFontSizeToFit
+            minimumFontScale={0.38}
+          >
+            {word}
+          </Text>
+        </View>
+        <Text style={styles.meaningJa}>{meaningJa}</Text>
+      </View>
 
       <Text style={styles.sayLabel}>こう言う</Text>
       <Text style={styles.sayItLike}>{sayItLike}</Text>
@@ -27,6 +45,9 @@ export default function WordHeroCard({
       <View style={styles.actions}>
         <AppButton label="Play" variant="secondary" onPress={onPlay} />
         <AppButton label="Slow" variant="secondary" onPress={onSlow} />
+        {onPremiumVoice ? (
+          <AppButton label="Natural voice" variant="secondary" onPress={onPremiumVoice} />
+        ) : null}
       </View>
     </AppCard>
   );
@@ -39,26 +60,47 @@ const styles = StyleSheet.create({
     color: colors.textMuted,
     textTransform: 'uppercase',
     letterSpacing: 0.7,
-    marginBottom: 8,
+    marginBottom: 5,
+  },
+  wordRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 12,
+    marginBottom: 12,
+  },
+  /** Bounded width so `adjustsFontSizeToFit` can shrink the English word to one line. */
+  wordCell: {
+    flex: 1,
+    minWidth: 0,
   },
   word: {
+    width: '100%',
     fontSize: 38,
     fontWeight: '800',
     color: colors.text,
-    marginBottom: 18,
+  },
+  meaningJa: {
+    flexShrink: 0,
+    maxWidth: '48%',
+    fontSize: 13,
+    lineHeight: 18,
+    fontWeight: '600',
+    color: colors.textMuted,
+    textAlign: 'right',
   },
   sayLabel: {
     fontSize: 14,
     fontWeight: '700',
     color: colors.textSoft,
-    marginBottom: 6,
+    marginBottom: 4,
   },
   sayItLike: {
     fontSize: 28,
-    lineHeight: 34,
+    lineHeight: 32,
     fontWeight: '800',
     color: colors.accent,
-    marginBottom: 18,
+    marginBottom: 12,
   },
   actions: {
     gap: 12,

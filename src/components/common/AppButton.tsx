@@ -1,6 +1,8 @@
 import { ReactNode } from 'react';
 import { Pressable, StyleSheet, Text } from 'react-native';
+
 import { colors } from '@/src/constants/colors';
+import { pressScaleStyle } from '@/src/utils/pressScale';
 
 type AppButtonProps = {
   label: string;
@@ -21,6 +23,7 @@ export default function AppButton({
       style={({ pressed }) => [
         styles.base,
         variant === 'primary' ? styles.primary : styles.secondary,
+        pressScaleStyle(pressed),
         pressed && styles.pressed,
       ]}
     >
@@ -34,7 +37,7 @@ export default function AppButton({
 
 const styles = StyleSheet.create({
   base: {
-    minHeight: 52,
+    minHeight: 46,
     borderRadius: 999,
     paddingHorizontal: 18,
     alignItems: 'center',
