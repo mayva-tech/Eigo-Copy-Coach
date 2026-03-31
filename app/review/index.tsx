@@ -1,5 +1,6 @@
-import ReviewScreen from '@/src/features/review/screens/ReviewScreen';
+import { Redirect } from 'expo-router';
 
-export default function ReviewRoute() {
-  return <ReviewScreen />;
+/** Deep links / legacy path → History tab. */
+export default function ReviewRedirect() {
+  return <Redirect href="/(tabs)/history" />;
 }

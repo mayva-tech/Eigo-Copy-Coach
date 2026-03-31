@@ -1,4 +1,4 @@
-export type LanguageCode = 'en' | 'ja' | 'ko' | 'pt-BR' | 'es' | 'zh-Hans';
+export type LanguageCode = 'en' | 'ja';
 
 export type UserLanguageSettings = {
   uiLanguage: LanguageCode;
@@ -10,8 +10,4 @@ export type UserLanguageSettings = {
 export const SUPPORTED_LANGUAGE_CODES: readonly LanguageCode[] = [
   'en',
   'ja',
-  'ko',
-  'pt-BR',
-  'es',
-  'zh-Hans',
 ] as const;

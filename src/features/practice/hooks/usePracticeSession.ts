@@ -1,9 +1,10 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 import { buildMockFeedback, getInitialFeedback } from '@/src/features/practice/utils/scoreHelpers';
 import type { PracticeFeedback } from '@/src/features/practice/types/practice.types';
 import { speakEnglishWord } from '@/src/services/audio/referenceSpeech';
 import { getLessonWords } from '@/src/services/content/lessonRepository';
+import { useSessionSummaryStore } from '@/src/store/sessionSummaryStore';
 import { usePracticeStore } from '@/src/store/usePracticeStore';
 
 /** Words at or below this mock score are saved to the local review queue. */
@@ -11,6 +12,10 @@ const REVIEW_SCORE_THRESHOLD = 85;
 
 export function usePracticeSession(lessonId: string) {
   const words = useMemo(() => getLessonWords(lessonId), [lessonId]);
+
+  useEffect(() => {
+    useSessionSummaryStore.getState().startSession(lessonId);
+  }, [lessonId]);
 
   const [currentIndex, setCurrentIndex] = useState(0);
   const [attemptCount, setAttemptCount] = useState(0);
@@ -71,6 +76,12 @@ export function usePracticeSession(lessonId: string) {
     setFeedback(nextFeedback);
 
     const score = nextFeedback.score ?? 0;
+    useSessionSummaryStore.getState().recordWordResult({
+      word: currentWord.word,
+      wordId: currentWord.id,
+      score,
+    });
+
     if (score < REVIEW_SCORE_THRESHOLD) {
       addReviewItem({
         id: `${currentWord.id}-${Date.now()}`,
@@ -100,6 +111,13 @@ export function usePracticeSession(lessonId: string) {
     resetWordState();
   };
 
+  /** Same word: clear recording attempt and return to “listen first” feedback. */
+  const retryCurrentWord = () => {
+    setAttemptCount(0);
+    setRecordedUri(null);
+    setFeedback(getInitialFeedback());
+  };
+
   return {
     words,
     currentWord,
@@ -114,5 +132,6 @@ export function usePracticeSession(lessonId: string) {
     registerAttemptResult,
     nextWord,
     previousWord,
+    retryCurrentWord,
   };
 }

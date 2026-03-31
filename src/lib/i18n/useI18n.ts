@@ -6,10 +6,9 @@ import { tUi } from '@/src/lib/i18n/resolveUi';
 import { useLanguageStore } from '@/src/store/language-store';
 
 export function useI18n() {
-  const uiLanguage = useLanguageStore((s) => s.uiLanguage);
+  const uiLanguage = 'ja' as const;
   const supportLanguage = useLanguageStore((s) => s.supportLanguage);
   const targetLanguage = useLanguageStore((s) => s.targetLanguage);
-  const setUiLanguage = useLanguageStore((s) => s.setUiLanguage);
   const setSupportLanguage = useLanguageStore((s) => s.setSupportLanguage);
   const setLanguagePair = useLanguageStore((s) => s.setLanguagePair);
 
@@ -31,7 +30,6 @@ export function useI18n() {
       uiLanguage,
       supportLanguage,
       targetLanguage,
-      setUiLanguage,
       setSupportLanguage,
       setLanguagePair,
       getGuidanceTipForWord,
@@ -42,7 +40,6 @@ export function useI18n() {
       uiLanguage,
       supportLanguage,
       targetLanguage,
-      setUiLanguage,
       setSupportLanguage,
       setLanguagePair,
       getGuidanceTipForWord,

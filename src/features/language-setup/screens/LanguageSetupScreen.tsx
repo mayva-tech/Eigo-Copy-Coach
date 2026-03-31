@@ -1,28 +1,25 @@
-import * as Localization from 'expo-localization';
 import { Redirect } from 'expo-router';
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { LANGUAGE_NATIVE_LABELS } from '@/src/constants/languageLabels';
-import { mapDeviceLocaleToLanguageCode } from '@/src/lib/i18n/localeMap';
 import { tUi } from '@/src/lib/i18n/resolveUi';
 import type { UiKey } from '@/src/lib/i18n/uiCatalog';
-import { SUPPORTED_LANGUAGE_CODES, type LanguageCode } from '@/src/types/language';
+import type { LanguageCode } from '@/src/types/language';
+import { ROUTES } from '@/src/constants/routes';
 import { useLanguageStore } from '@/src/store/language-store';
 import { pressScaleStyle } from '@/src/utils/pressScale';
 import { useScreenColors } from '@/src/utils/screen-colors';
 
 type Step = 'pick' | 'confirm';
+// UI is fixed to Japanese; user chooses explanation language.
+const SUPPORT_LANGUAGE_CHOICES: readonly LanguageCode[] = ['ja', 'en'];
 
 export function LanguageSetupScreen() {
   const c = useScreenColors();
-  const suggested = useMemo(
-    () => mapDeviceLocaleToLanguageCode(Localization.getLocales()[0]?.languageTag),
-    []
-  );
-  const [pickerLocale, setPickerLocale] = useState<LanguageCode>(suggested);
-  const [selected, setSelected] = useState<LanguageCode>(suggested);
+  const uiLocale: LanguageCode = 'ja';
+  const [selectedSupport, setSelectedSupport] = useState<LanguageCode>('ja');
   const [step, setStep] = useState<Step>('pick');
 
   const setLanguagePair = useLanguageStore((s) => s.setLanguagePair);
@@ -30,14 +27,13 @@ export function LanguageSetupScreen() {
   const hasConfirmedLanguage = useLanguageStore((s) => s.hasConfirmedLanguage);
 
   if (hasConfirmedLanguage) {
-    return <Redirect href="/" />;
+    return <Redirect href={ROUTES.HOME} />;
   }
 
-  const label = (key: UiKey) => tUi(pickerLocale, key);
+  const label = (key: UiKey) => tUi(uiLocale, key);
 
-  const onPickLanguage = (code: LanguageCode) => {
-    setSelected(code);
-    setPickerLocale(code);
+  const onPickSupportLanguage = (code: LanguageCode) => {
+    setSelectedSupport(code);
   };
 
   const onContinueFromPick = () => {
@@ -45,7 +41,7 @@ export function LanguageSetupScreen() {
   };
 
   const onConfirmFinal = () => {
-    setLanguagePair(selected, selected);
+    setLanguagePair('ja', selectedSupport);
     confirmLanguage();
   };
 
@@ -61,20 +57,13 @@ export function LanguageSetupScreen() {
 
         {step === 'pick' && (
           <>
-            {selected === suggested ? (
-              <View style={[styles.banner, { backgroundColor: c.card }]}>
-                <Text style={[styles.bannerText, { color: c.textMuted }]}>
-                  {label('languageSetup.suggestedBanner')}
-                </Text>
-              </View>
-            ) : null}
             <View style={styles.list}>
-              {SUPPORTED_LANGUAGE_CODES.map((code) => {
-                const active = selected === code;
+              {SUPPORT_LANGUAGE_CHOICES.map((code) => {
+                const active = selectedSupport === code;
                 return (
                   <Pressable
                     key={code}
-                    onPress={() => onPickLanguage(code)}
+                    onPress={() => onPickSupportLanguage(code)}
                     style={({ pressed }) => [
                       styles.row,
                       { borderColor: active ? c.tint : 'transparent', backgroundColor: c.card },
@@ -103,7 +92,9 @@ export function LanguageSetupScreen() {
             <Text style={[styles.confirmBody, { color: c.textMuted }]}>
               {label('languageSetup.confirmBody')}
             </Text>
-            <Text style={[styles.chosen, { color: c.text }]}>{LANGUAGE_NATIVE_LABELS[selected]}</Text>
+            <Text style={[styles.chosen, { color: c.text }]}>
+              {LANGUAGE_NATIVE_LABELS[selectedSupport]}
+            </Text>
             <Pressable
               style={({ pressed }) => [styles.primary, { backgroundColor: c.tint }, pressScaleStyle(pressed)]}
               onPress={onConfirmFinal}>
@@ -124,8 +115,6 @@ const styles = StyleSheet.create({
   content: { padding: 24, paddingBottom: 48, gap: 12 },
   title: { fontSize: 26, fontWeight: '700' },
   sub: { fontSize: 16, lineHeight: 22, marginBottom: 8 },
-  banner: { padding: 12, borderRadius: 10 },
-  bannerText: { fontSize: 13 },
   list: { gap: 10, marginTop: 8 },
   row: {
     paddingVertical: 14,

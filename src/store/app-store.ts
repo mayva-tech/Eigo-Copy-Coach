@@ -16,7 +16,8 @@ export const useAppStore = create<AppState>()(
       resetOnboarding: () => set({ onboardingComplete: false }),
     }),
     {
-      name: 'eigo-app-settings-v1',
+      // Bump to force onboarding to show again after flow changes.
+      name: 'eigo-app-settings-v2',
       storage: createJSONStorage(() => AsyncStorage),
       partialize: (state) => ({ onboardingComplete: state.onboardingComplete }),
     }

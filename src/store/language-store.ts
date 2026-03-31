@@ -23,9 +23,10 @@ export const useLanguageStore = create<LanguageState>()(
       supportLanguage: 'ja',
       targetLanguage: 'en',
       hasConfirmedLanguage: false,
-      setUiLanguage: (code) => set({ uiLanguage: code }),
+      // Japan-first app: UI language is fixed to Japanese.
+      setUiLanguage: () => set({ uiLanguage: 'ja' }),
       setSupportLanguage: (code) => set({ supportLanguage: code }),
-      setLanguagePair: (ui, support) => set({ uiLanguage: ui, supportLanguage: support }),
+      setLanguagePair: (_ui, support) => set({ uiLanguage: 'ja', supportLanguage: support }),
       confirmLanguage: () => set({ hasConfirmedLanguage: true }),
       resetLanguageSetup: () => set({ hasConfirmedLanguage: false }),
     }),

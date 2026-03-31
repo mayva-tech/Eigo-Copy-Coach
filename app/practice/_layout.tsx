@@ -33,19 +33,7 @@ export default function PracticeLayout() {
       <Stack.Screen
         name="[lessonId]"
         options={{
-          headerBackVisible: true,
-          title: '',
-          headerTitle: () => null,
-          headerLeft: (props) => (
-            <HeaderBackButton
-              {...props}
-              onPress={() => {
-                if (router.canGoBack()) {
-                  router.back();
-                }
-              }}
-            />
-          ),
+          headerShown: false,
         }}
       />
     </Stack>

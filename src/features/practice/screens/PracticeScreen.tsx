@@ -1,38 +1,34 @@
 import { createAudioPlayer, type AudioPlayer } from 'expo-audio';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useCallback, useEffect, useRef } from 'react';
-import { Alert, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { Alert, Animated, Pressable, StyleSheet, Text, View } from 'react-native';
 
-import AppButton from '@/src/components/common/AppButton';
-import ScreenHeader from '@/src/components/common/ScreenHeader';
-import AttemptScoreCard from '@/src/components/practice/AttemptScoreCard';
-import MouthCoachCard from '@/src/components/practice/MouthCoachCard';
-import RecordingPanel from '@/src/components/practice/RecordingPanel';
-import WordHeroCard from '@/src/components/practice/WordHeroCard';
-import WrongCorrectCard from '@/src/components/practice/WrongCorrectCard';
-import { colors } from '@/src/constants/colors';
+import FeedbackCard from '@/src/components/ui/FeedbackCard';
+import PracticeActions from '@/src/components/ui/PracticeActions';
+import PrimaryButton from '@/src/components/ui/PrimaryButton';
+import ProgressHeader from '@/src/components/ui/ProgressHeader';
+import PromptCard from '@/src/components/ui/PromptCard';
+import RecordButton from '@/src/components/ui/RecordButton';
+import ScreenContainer from '@/src/components/ui/ScreenContainer';
+import SecondaryButton from '@/src/components/ui/SecondaryButton';
+import TipCard from '@/src/components/ui/TipCard';
+import WaveformDisplay from '@/src/components/ui/WaveformDisplay';
 import { ROUTES } from '@/src/constants/routes';
 import { useAudioPractice } from '@/src/features/practice/hooks/useAudioPractice';
 import { usePracticeSession } from '@/src/features/practice/hooks/usePracticeSession';
 import { playUri } from '@/src/services/audio/audioPlaybackService';
 import { speakEnglishWord } from '@/src/services/audio/referenceSpeech';
+import { getLessonTitle } from '@/src/services/content/lessonRepository';
 import { getPremiumVoicePaywallTrigger } from '@/src/services/paywall/paywallTriggers';
 import { getLessonAudio } from '@/src/services/tts/getLessonAudio';
 import { usePlanStore } from '@/src/store/planStore';
+import { theme, typography } from '@/src/theme/pronunciationTheme';
 
-/**
- * Practice reference audio — locked behavior (do not regress):
- * - **Play / Slow** = core practice reference only. Free → on-device TTS; premium → backend MP3.
- *   Never opens paywall. Recording, scoring, review queue, and next/prev word flows stay untouched.
- * - **Natural voice** = free-only preview CTA (`plan === 'free'`). Hidden for premium subscribers.
- * - **Paywall** = only when free preview quota is exhausted (`getPremiumVoicePaywallTrigger`), on Natural voice.
- * - **Fallback** = if backend/file playback fails or player is missing, always `speakEnglishWord` (learner still hears something).
- */
 export default function PracticeScreen() {
   const router = useRouter();
   const params = useLocalSearchParams<{ lessonId?: string }>();
   const lessonId = params.lessonId ?? 'lesson-01';
+  const lessonTitle = getLessonTitle(lessonId);
 
   const plan = usePlanStore((state) => state.plan);
   const premiumHearCount = usePlanStore((state) => state.premiumHearCount);
@@ -40,6 +36,8 @@ export default function PracticeScreen() {
   const markPaywallSeen = usePlanStore((state) => state.markPaywallSeen);
 
   const referencePlayerRef = useRef<AudioPlayer | null>(null);
+  const replayPop = useRef(new Animated.Value(1)).current;
+  const slowPop = useRef(new Animated.Value(1)).current;
 
   useEffect(() => {
     const p = createAudioPlayer(null);
@@ -55,18 +53,17 @@ export default function PracticeScreen() {
     currentWord,
     currentIndex,
     words,
-    progressLabel,
     feedback,
     recordedUri,
     applyReferenceFeedback,
     registerAttemptResult,
     nextWord,
     previousWord,
+    retryCurrentWord,
   } = usePracticeSession(lessonId);
 
   const audio = useAudioPractice(recordedUri);
 
-  /** Practice screen: only called when free Natural-voice previews are exhausted — not from Play/Slow. */
   const openPaywall = useCallback(
     (reason: string) => {
       markPaywallSeen();
@@ -75,11 +72,6 @@ export default function PracticeScreen() {
     [markPaywallSeen, router],
   );
 
-  /**
-   * Core practice reference (Play / Slow). No paywall on this path.
-   * @returns Free core: true after device TTS. Premium/preview pipeline: true only if `file://` playback succeeded;
-   *   false if missing player, fetch error, or `speakEnglishWord` fallback (preview quota increments only on true).
-   */
   const handlePlayReferenceAudio = useCallback(
     async (mode: 'normal' | 'slow', usePremiumVoice: boolean): Promise<boolean> => {
       if (!currentWord) return false;
@@ -115,7 +107,6 @@ export default function PracticeScreen() {
     [applyReferenceFeedback, currentWord, plan],
   );
 
-  /** Free-only Natural voice: backend preview until quota exhausted, then paywall. Premium users never see this CTA. */
   const handlePremiumPreviewTap = useCallback(() => {
     if (plan !== 'free') return;
 
@@ -132,8 +123,6 @@ export default function PracticeScreen() {
     void (async () => {
       const ok = await handlePlayReferenceAudio('normal', true);
       if (ok) {
-        // Only increment after premium preview audio actually starts successfully.
-        // Do not increment on fallback-to-device-TTS cases.
         incrementPremiumHearCount();
       }
     })();
@@ -145,19 +134,13 @@ export default function PracticeScreen() {
     premiumHearCount,
   ]);
 
-  if (!currentWord) {
-    return (
-      <SafeAreaView style={styles.safeArea}>
-        <View style={styles.emptyWrap}>
-          <Text style={styles.emptyTitle}>レッスンが見つかりません</Text>
-          <AppButton label="ホームへ戻る" onPress={() => router.replace(ROUTES.HOME)} />
-        </View>
-      </SafeAreaView>
-    );
-  }
-
-  const isFirst = currentIndex === 0;
-  const isLast = currentIndex === words.length - 1;
+  const handleBack = () => {
+    if (router.canGoBack()) {
+      router.back();
+    } else {
+      router.replace(ROUTES.HOME);
+    }
+  };
 
   const handleStartRecording = async () => {
     try {
@@ -178,105 +161,215 @@ export default function PracticeScreen() {
     }
   };
 
+  const toggleRecord = () => {
+    if (audio.status.isRecording) {
+      void handleStopRecording();
+    } else {
+      void handleStartRecording();
+    }
+  };
+
+  const handleReplayRecording = () => {
+    Animated.sequence([
+      Animated.timing(replayPop, {
+        toValue: 1.14,
+        duration: 110,
+        useNativeDriver: true,
+      }),
+      Animated.timing(replayPop, {
+        toValue: 1,
+        duration: 140,
+        useNativeDriver: true,
+      }),
+    ]).start();
+    void audio.playRecording();
+  };
+
+  const handleSlowTap = () => {
+    Animated.sequence([
+      Animated.timing(slowPop, {
+        toValue: 1.16,
+        duration: 95,
+        useNativeDriver: true,
+      }),
+      Animated.timing(slowPop, {
+        toValue: 1,
+        duration: 130,
+        useNativeDriver: true,
+      }),
+    ]).start();
+    void handlePlayReferenceAudio('slow', plan === 'premium');
+  };
+
+  if (!currentWord) {
+    return (
+      <ScreenContainer>
+        <Text style={styles.emptyTitle}>レッスンが見つかりません</Text>
+        <PrimaryButton label="ホームへ戻る" onPress={() => router.replace(ROUTES.HOME)} />
+      </ScreenContainer>
+    );
+  }
+
+  const isLast = currentIndex === words.length - 1;
+  const progressCurrent = currentIndex + 1;
+  const feedbackLines = [feedback.title, feedback.body].filter((s) => s.trim().length > 0);
+  const showTryAgain = feedback.score != null;
+  const tipText = `${currentWord.mouthTipJa} Avoid 避ける: ${currentWord.avoidGuide}`;
+
+  const finishSession = () => {
+    router.push({
+      pathname: ROUTES.SESSION_COMPLETE,
+      params: { lessonId },
+    });
+  };
+
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
-        <ScreenHeader
-          eyebrow="Practice"
-          title="1語ずつ、短く練習"
-          subtitle={`Lesson: ${lessonId}  •  ${progressLabel}`}
-        />
+    <ScreenContainer contentStyle={styles.screenContent}>
+      <ProgressHeader
+        current={progressCurrent}
+        total={words.length}
+        lessonTitle={lessonTitle}
+        onBack={handleBack}
+      />
 
-        <WordHeroCard
-          word={currentWord.word}
-          meaningJa={currentWord.meaningJa}
-          sayItLike={currentWord.sayItLike}
-          onPlay={() => void handlePlayReferenceAudio('normal', plan === 'premium')}
-          onSlow={() => void handlePlayReferenceAudio('slow', plan === 'premium')}
-          onPremiumVoice={plan === 'free' ? handlePremiumPreviewTap : undefined}
-        />
+      <PromptCard
+        word={currentWord.word}
+        meaningJa={currentWord.meaningJa}
+        onListen={() => void handlePlayReferenceAudio('normal', plan === 'premium')}
+      />
 
-        <WrongCorrectCard
-          avoidGuide={currentWord.avoidGuide}
-          sayItLike={currentWord.sayItLike}
-        />
+      <View style={styles.audioExtras}>
+        <Animated.View style={[styles.popWrap, { transform: [{ scale: slowPop }] }]}>
+          <Pressable onPress={handleSlowTap} style={({ pressed }) => pressed && styles.linkPressed}>
+            <Text style={[styles.link, styles.slowLink]}>Slow</Text>
+          </Pressable>
+        </Animated.View>
+        <Text style={styles.dot}>·</Text>
+        {plan === 'free' ? (
+          <Pressable onPress={handlePremiumPreviewTap}>
+            <Text style={styles.link}>Natural voice</Text>
+          </Pressable>
+        ) : null}
+      </View>
 
-        <MouthCoachCard mouthTipJa={currentWord.mouthTipJa} />
+      <WaveformDisplay variant="gold" />
 
-        <RecordingPanel
+      <View style={styles.recordBlock}>
+        <RecordButton
           isRecording={audio.status.isRecording}
-          hasRecording={audio.status.hasRecording}
-          micGranted={audio.status.micGranted}
-          onStart={handleStartRecording}
-          onStop={handleStopRecording}
-          onReplay={() => {
-            void audio.playRecording();
-          }}
+          onPress={toggleRecord}
+          disabled={!audio.status.audioReady}
         />
+        <Text style={styles.tapLabel}>Tap to speak タップして話す</Text>
+        {audio.status.hasRecording ? (
+          <Animated.View style={[styles.replayPopWrap, { transform: [{ scale: replayPop }] }]}>
+            <Pressable
+              onPress={handleReplayRecording}
+              style={({ pressed }) => [styles.replayHit, pressed && styles.replayPressed]}
+            >
+              <Text style={styles.replay}>Play my recording</Text>
+            </Pressable>
+          </Animated.View>
+        ) : null}
+      </View>
 
-        <AttemptScoreCard
-          tone={feedback.tone}
-          title={feedback.title}
-          body={feedback.body}
-          score={feedback.score}
+      <FeedbackCard
+        lines={feedbackLines}
+        tryAgainWord={showTryAgain ? currentWord.word : undefined}
+      />
+
+      <TipCard text={tipText} />
+
+      <PracticeActions
+        onSkip={() => (isLast ? finishSession() : nextWord())}
+        onTryAgain={retryCurrentWord}
+        skipLabel={isLast ? 'Finish' : 'Skip'}
+        skipLabelJa={isLast ? '完了' : 'スキップ'}
+        tryAgainLabel="Try again"
+        tryAgainLabelJa="もう一回"
+      />
+
+      <View style={styles.navRow}>
+        <SecondaryButton label="Previous" labelSuffixJa="前へ" onPress={previousWord} flex={1} />
+        <PrimaryButton
+          label={isLast ? 'Done' : 'Next word'}
+          labelSuffixJa={isLast ? '完了' : '次の単語'}
+          onPress={isLast ? finishSession : nextWord}
+          flex={1}
         />
-
-        <View style={styles.navRow}>
-          <AppButton
-            label="前へ"
-            variant="secondary"
-            onPress={previousWord}
-          />
-          <AppButton
-            label={isLast ? 'おわり' : '次へ'}
-            onPress={isLast ? () => router.push(ROUTES.REVIEW) : nextWord}
-          />
-        </View>
-
-        {!isFirst && (
-          <View style={styles.backRow}>
-            <Text style={styles.backText}>前の単語に戻っても大丈夫。</Text>
-          </View>
-        )}
-      </ScrollView>
-    </SafeAreaView>
+      </View>
+    </ScreenContainer>
   );
 }
 
 const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    backgroundColor: colors.background,
-  },
-  container: {
-    paddingHorizontal: 20,
-    paddingTop: 16,
-    paddingBottom: 24,
-    gap: 11,
-  },
-  navRow: {
-    gap: 12,
-  },
-  backRow: {
-    alignItems: 'center',
-    marginTop: -4,
-  },
-  backText: {
-    fontSize: 13,
-    color: colors.textMuted,
-  },
-  emptyWrap: {
-    flex: 1,
-    paddingHorizontal: 20,
-    paddingVertical: 16,
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 11,
-    backgroundColor: colors.background,
+  screenContent: {
+    paddingTop: theme.space.sm,
+    paddingBottom: theme.space.lg,
+    gap: theme.space.xs,
   },
   emptyTitle: {
+    fontFamily: theme.fontDisplay,
     fontSize: 22,
-    fontWeight: '800',
-    color: colors.text,
+    color: theme.colors.text,
+    marginBottom: theme.space.md,
+  },
+  audioExtras: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: theme.space.xs,
+    marginTop: -2,
+    marginBottom: 2,
+  },
+  link: {
+    ...typography.bodySmall,
+    fontWeight: '700',
+    color: theme.colors.accentGoldDeep,
+    textDecorationLine: 'underline',
+  },
+  slowLink: {
+    fontSize: 15,
+  },
+  dot: {
+    color: theme.colors.textMuted,
+    fontSize: 14,
+  },
+  recordBlock: {
+    alignItems: 'center',
+    gap: theme.space.xs,
+    marginVertical: 4,
+  },
+  tapLabel: {
+    fontFamily: theme.fontDisplay,
+    fontSize: 13,
+    color: theme.colors.textSecondary,
+  },
+  replayHit: {
+    paddingVertical: 2,
+  },
+  replayPopWrap: {
+    alignSelf: 'center',
+  },
+  popWrap: {
+    alignSelf: 'center',
+  },
+  replayPressed: {
+    opacity: 0.8,
+  },
+  linkPressed: {
+    opacity: 0.82,
+  },
+  replay: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: theme.colors.textMuted,
+    textDecorationLine: 'underline',
+  },
+  navRow: {
+    flexDirection: 'row',
+    gap: theme.space.xs,
+    alignItems: 'stretch',
+    marginTop: 4,
   },
 });

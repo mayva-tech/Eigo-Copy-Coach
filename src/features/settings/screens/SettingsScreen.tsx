@@ -16,9 +16,9 @@ import AppCard from '@/src/components/common/AppCard';
 import ScreenHeader from '@/src/components/common/ScreenHeader';
 import { LANGUAGE_NATIVE_LABELS } from '@/src/constants/languageLabels';
 import { colors } from '@/src/constants/colors';
+import { tUi } from '@/src/lib/i18n/resolveUi';
+import type { UiKey } from '@/src/lib/i18n/uiCatalog';
 import { useI18n } from '@/src/lib/i18n/useI18n';
-import { useAppStore } from '@/src/store/useAppStore';
-import { useLanguageStore } from '@/src/store/language-store';
 import { SUPPORTED_LANGUAGE_CODES } from '@/src/types/language';
 import { playTtsFromDevBackend } from '@/src/services/audio/backendTtsPlay';
 import { pressScaleStyle } from '@/src/utils/pressScale';
@@ -29,18 +29,9 @@ const DEV_TTS_DEFAULT =
     : '';
 
 export default function SettingsScreen() {
-  const { t, uiLanguage, supportLanguage, setUiLanguage, setSupportLanguage } = useI18n();
-  const resetLanguageSetup = useLanguageStore((s) => s.resetLanguageSetup);
-  const resetOnboarding = useAppStore((s) => s.resetOnboarding);
-
-  const onResetLanguageSetup = () => {
-    resetLanguageSetup();
-  };
-
-  const onFullReset = () => {
-    resetLanguageSetup();
-    resetOnboarding();
-  };
+  const { supportLanguage, setSupportLanguage } = useI18n();
+  const t = (key: UiKey) => tUi(supportLanguage, key);
+  const isEnglish = supportLanguage === 'en';
 
   const [devTtsUrl, setDevTtsUrl] = useState(DEV_TTS_DEFAULT);
   const [devTtsBusy, setDevTtsBusy] = useState(false);
@@ -49,8 +40,10 @@ export default function SettingsScreen() {
     const url = devTtsUrl.trim();
     if (!url) {
       Alert.alert(
-        'Add your computer address',
-        'Use http:// and your PC’s Wi‑Fi address, for example http://192.168.1.10:8080 (not localhost on the phone).',
+        isEnglish ? 'Add your computer address' : 'PC のアドレスを入力してください',
+        isEnglish
+          ? 'Use http:// and your PC’s Wi-Fi address, for example http://192.168.11.40:8080 (not localhost on the phone).'
+          : 'http:// で始まる PC の Wi-Fi アドレスを使ってください（例: http://192.168.11.40:8080）。スマホでは localhost は使えません。',
       );
       return;
     }
@@ -59,11 +52,11 @@ export default function SettingsScreen() {
       await playTtsFromDevBackend(url, 'knife');
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);
-      Alert.alert('TTS test failed', msg);
+      Alert.alert(isEnglish ? 'TTS test failed' : 'TTS テストに失敗しました', msg);
     } finally {
       setDevTtsBusy(false);
     }
-  }, [devTtsUrl]);
+  }, [devTtsUrl, isEnglish]);
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -76,21 +69,6 @@ export default function SettingsScreen() {
 
         <AppCard>
           <Text style={styles.sectionTitle}>{t('settings.sectionLanguage')}</Text>
-
-          <View style={styles.row}>
-            <Text style={styles.label}>{t('settings.appLanguage')}</Text>
-            <Text style={styles.value}>{t('settings.appLanguageDesc')}</Text>
-            <View style={styles.pills}>
-              {SUPPORTED_LANGUAGE_CODES.map((code) => (
-                <LanguagePill
-                  key={`ui-${code}`}
-                  label={LANGUAGE_NATIVE_LABELS[code]}
-                  active={uiLanguage === code}
-                  onPress={() => setUiLanguage(code)}
-                />
-              ))}
-            </View>
-          </View>
 
           <View style={styles.row}>
             <Text style={styles.label}>{t('settings.supportLanguage')}</Text>
@@ -106,40 +84,23 @@ export default function SettingsScreen() {
               ))}
             </View>
           </View>
-
-          <View style={styles.rowNoDivider}>
-            <Text style={styles.label}>{t('settings.resetLanguageSetup')}</Text>
-            <Text style={styles.value}>{t('settings.resetLanguageSetupDesc')}</Text>
-            <Pressable
-              onPress={onResetLanguageSetup}
-              style={({ pressed }) => [styles.resetButton, pressScaleStyle(pressed), pressed && styles.pressed]}>
-              <Text style={styles.resetButtonText}>{t('settings.resetLanguageSetupAction')}</Text>
-            </Pressable>
-          </View>
-
-          <View style={styles.rowNoDividerTopBorder}>
-            <Text style={styles.label}>{t('settings.fullResetTitle')}</Text>
-            <Text style={styles.value}>{t('settings.fullResetDesc')}</Text>
-            <Pressable
-              onPress={onFullReset}
-              style={({ pressed }) => [styles.fullResetButton, pressScaleStyle(pressed), pressed && styles.pressed]}>
-              <Text style={styles.fullResetButtonText}>{t('settings.fullResetAction')}</Text>
-            </Pressable>
-          </View>
         </AppCard>
 
         {__DEV__ ? (
           <AppCard>
-            <Text style={styles.sectionTitle}>Developer: TTS server (Expo Go)</Text>
-            <Text style={styles.value}>
-              Phone and PC must be on the same Wi‑Fi. Use your PC’s IP (not localhost), backend running on port
-              8080.
+            <Text style={styles.sectionTitle}>
+              {isEnglish ? 'Developer: TTS server (Expo Go)' : '開発者向け: TTS サーバー（Expo Go）'}
             </Text>
-            <Text style={styles.label}>Server base URL</Text>
+            <Text style={styles.value}>
+              {isEnglish
+                ? 'Phone and PC must be on the same Wi-Fi. Use your PC’s IP (not localhost), backend running on port 8080.'
+                : 'スマホと PC を同じ Wi-Fi に接続してください。localhost ではなく PC の IP を使い、バックエンドを 8080 ポートで起動します。'}
+            </Text>
+            <Text style={styles.label}>{isEnglish ? 'Server base URL' : 'サーバーURL'}</Text>
             <TextInput
               value={devTtsUrl}
               onChangeText={setDevTtsUrl}
-              placeholder="http://192.168.x.x:8080"
+              placeholder="http://192.168.11.40:8080"
               placeholderTextColor={colors.textMuted}
               autoCapitalize="none"
               autoCorrect={false}
@@ -158,7 +119,9 @@ export default function SettingsScreen() {
               {devTtsBusy ? (
                 <ActivityIndicator color={colors.primary} />
               ) : (
-                <Text style={styles.devTestButtonText}>Play test word (“knife”)</Text>
+                <Text style={styles.devTestButtonText}>
+                  {isEnglish ? 'Play test word ("knife")' : 'テスト単語を再生（"knife"）'}
+                </Text>
               )}
             </Pressable>
           </AppCard>
@@ -210,14 +173,6 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: colors.border,
   },
-  rowNoDivider: {
-    paddingVertical: 14,
-  },
-  rowNoDividerTopBorder: {
-    paddingVertical: 14,
-    borderTopWidth: 1,
-    borderTopColor: colors.border,
-  },
   label: {
     fontSize: 14,
     fontWeight: '700',
@@ -253,36 +208,6 @@ const styles = StyleSheet.create({
   },
   pillTextActive: {
     color: colors.primary,
-  },
-  resetButton: {
-    alignSelf: 'flex-start',
-    borderRadius: 999,
-    borderWidth: 1,
-    borderColor: colors.primary,
-    backgroundColor: colors.primarySoft,
-    paddingHorizontal: 14,
-    paddingVertical: 9,
-    marginTop: 4,
-  },
-  resetButtonText: {
-    color: colors.primary,
-    fontSize: 13,
-    fontWeight: '800',
-  },
-  fullResetButton: {
-    alignSelf: 'flex-start',
-    borderRadius: 999,
-    borderWidth: 1,
-    borderColor: colors.dangerText,
-    backgroundColor: colors.dangerSoft,
-    paddingHorizontal: 14,
-    paddingVertical: 9,
-    marginTop: 4,
-  },
-  fullResetButtonText: {
-    color: colors.dangerText,
-    fontSize: 13,
-    fontWeight: '800',
   },
   pressed: {
     opacity: 0.86,

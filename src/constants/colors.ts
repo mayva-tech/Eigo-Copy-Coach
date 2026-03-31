@@ -1,16 +1,24 @@
+import { theme } from '@/src/theme/pronunciationTheme';
+
+/**
+ * Legacy semantic map used across the app — values follow warm coach palette.
+ */
 export const colors = {
-  background: '#F6F2EA',
-  surface: '#FFFDF9',
-  surfaceSoft: '#F3ECE2',
-  border: '#E9DFD1',
-  text: '#1F1A17',
-  textSoft: '#5C5148',
-  textMuted: '#7A6E61',
-  primary: '#2E6A57',
-  primarySoft: '#E3EFEA',
-  accent: '#A14F2A',
-  dangerSoft: '#F7E3DE',
-  dangerText: '#8A3D35',
-  successSoft: '#E0F1E8',
-  successText: '#245445',
+  background: theme.colors.background,
+  surface: theme.colors.surfaceElevated,
+  surfaceSoft: theme.colors.surfaceSoft,
+  border: theme.colors.border,
+  text: theme.colors.text,
+  textSoft: theme.colors.textSecondary,
+  textMuted: theme.colors.textMuted,
+  primary: theme.colors.accentGold,
+  primarySoft: theme.colors.surfaceSoft,
+  accent: theme.colors.accentGoldDeep,
+  dangerSoft: theme.colors.practiceSoft,
+  dangerText: theme.colors.dangerText,
+  successSoft: theme.colors.successSoft,
+  successText: theme.colors.successOlive,
+  darkCard: theme.colors.darkCard,
+  onDark: theme.colors.onDark,
+  terracotta: theme.colors.terracotta,
 } as const;

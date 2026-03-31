@@ -1,19 +1,16 @@
-import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { useEffect } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 
-import AppButton from '@/src/components/common/AppButton';
-import AppCard from '@/src/components/common/AppCard';
-import ScreenHeader from '@/src/components/common/ScreenHeader';
-import { colors } from '@/src/constants/colors';
-import { ROUTES } from '@/src/constants/routes';
+import PrimaryButton from '@/src/components/ui/PrimaryButton';
+import ScreenContainer from '@/src/components/ui/ScreenContainer';
+import SectionLabel from '@/src/components/ui/SectionLabel';
+import SecondaryButton from '@/src/components/ui/SecondaryButton';
 import { loadReviewQueue } from '@/src/services/storage/practiceStorage';
 import { usePracticeStore } from '@/src/store/usePracticeStore';
+import { theme, typography } from '@/src/theme/pronunciationTheme';
 
 export default function ReviewScreen() {
-  const insets = useSafeAreaInsets();
   const reviewQueue = usePracticeStore((state) => state.reviewQueue);
   const setReviewQueue = usePracticeStore((state) => state.setReviewQueue);
   const clearReviewQueue = usePracticeStore((state) => state.clearReviewQueue);
@@ -29,143 +26,119 @@ export default function ReviewScreen() {
     clearReviewQueue();
   };
 
-  const handleBack = () => {
-    if (router.canGoBack()) {
-      router.back();
-    } else {
-      router.replace(ROUTES.HOME);
-    }
-  };
-
   return (
-    <SafeAreaView style={styles.safeArea} edges={['bottom', 'left', 'right']}>
-      <View style={[styles.topBar, { paddingTop: insets.top + 12 }]}>
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel="戻る"
-          onPress={handleBack}
-          style={({ pressed }) => [styles.backHit, pressed && styles.backPressed]}
-        >
-          <Ionicons name="chevron-back" size={26} color={colors.primary} />
-        </Pressable>
-        <Text style={styles.topBarTitle}>復習</Text>
-        <View style={styles.topBarSpacer} />
-      </View>
+    <ScreenContainer>
+      <SectionLabel>HISTORY</SectionLabel>
+      <Text style={styles.title}>Words to revisit</Text>
+      <Text style={[typography.body, styles.sub]}>
+        点数が低かった単語をここに集めます。短く聞いて、もう一度だけ真似してみましょう。
+      </Text>
 
-      <ScrollView
-        style={styles.scroll}
-        contentContainerStyle={styles.container}
-        showsVerticalScrollIndicator={false}
-      >
-        <ScreenHeader
-          eyebrow="Review"
-          subtitle="点数が低かった単語をここに集めます。"
-        />
-
-        {reviewQueue.length === 0 ? (
-          <AppCard>
-            <Text style={styles.title}>まだ復習データはありません</Text>
-            <Text style={styles.body}>
-              練習後に「もう一回やりたい単語」や「苦手な音」をここへ表示します。
-            </Text>
-          </AppCard>
-        ) : (
-          <>
-            <View style={styles.list}>
-              {reviewQueue.map((item) => (
-                <AppCard key={item.id}>
+      {reviewQueue.length === 0 ? (
+        <View style={styles.emptyCard}>
+          <Text style={styles.emptyTitle}>まだデータはありません</Text>
+          <Text style={typography.body}>
+            練習後に「もう一回やりたい単語」がここへ追加されます。
+          </Text>
+        </View>
+      ) : (
+        <>
+          <View style={styles.list}>
+            {reviewQueue.map((item) => (
+              <Pressable
+                key={item.id}
+                style={({ pressed }) => [styles.row, pressed && styles.rowPressed]}
+                onPress={() => router.push(`/practice/lesson-01`)}
+              >
+                <View style={styles.dot} />
+                <View style={styles.rowBody}>
                   <Text style={styles.word}>{item.word}</Text>
-                  <Text style={styles.line}>こう言う: {item.sayItLike}</Text>
-                  <Text style={styles.line}>さけたい形: {item.avoidGuide}</Text>
-                  <Text style={styles.line}>口のコツ: {item.mouthTipJa}</Text>
-                  <Text style={styles.score}>score: {item.score}</Text>
-                </AppCard>
-              ))}
-            </View>
+                  <Text style={styles.meta}>こう言う: {item.sayItLike}</Text>
+                  <Text style={styles.meta}>口のコツ: {item.mouthTipJa}</Text>
+                  <Text style={styles.score}>Score {item.score}</Text>
+                </View>
+              </Pressable>
+            ))}
+          </View>
 
-            <AppButton
-              label="復習データを消す"
-              variant="secondary"
-              onPress={handleClear}
-            />
-          </>
-        )}
-      </ScrollView>
-    </SafeAreaView>
+          <SecondaryButton label="Clear history" onPress={handleClear} />
+          <View style={{ height: theme.space.xs }} />
+          <PrimaryButton label="Practice this lesson" onPress={() => router.push('/practice/lesson-01')} />
+        </>
+      )}
+    </ScreenContainer>
   );
 }
 
 const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    backgroundColor: colors.background,
+  title: {
+    fontFamily: theme.fontDisplay,
+    fontSize: 24,
+    color: theme.colors.text,
+    marginBottom: 2,
+    lineHeight: 30,
   },
-  topBar: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 6,
-    paddingBottom: 12,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: colors.border,
-    backgroundColor: colors.background,
+  sub: {
+    color: theme.colors.textMuted,
+    marginBottom: theme.space.md,
+    fontSize: 14,
+    lineHeight: 19,
   },
-  backHit: {
-    width: 44,
-    height: 44,
-    alignItems: 'center',
-    justifyContent: 'center',
+  emptyCard: {
+    backgroundColor: theme.colors.surfaceElevated,
+    borderRadius: theme.radius.xl,
+    borderWidth: 1,
+    borderColor: theme.colors.borderSubtle,
+    padding: theme.space.md,
+    gap: theme.space.xs,
   },
-  backPressed: {
-    opacity: 0.65,
-  },
-  topBarTitle: {
-    flex: 1,
-    textAlign: 'center',
-    fontSize: 17,
-    fontWeight: '700',
-    color: colors.text,
-  },
-  topBarSpacer: {
-    width: 44,
-  },
-  scroll: {
-    flex: 1,
-  },
-  container: {
-    padding: 20,
-    gap: 16,
-    paddingBottom: 32,
+  emptyTitle: {
+    fontFamily: theme.fontDisplay,
+    fontSize: 18,
+    color: theme.colors.text,
   },
   list: {
-    gap: 12,
+    gap: theme.space.xs,
+    marginBottom: theme.space.md,
   },
-  title: {
-    fontSize: 20,
-    fontWeight: '800',
-    color: colors.text,
-    marginBottom: 8,
+  row: {
+    flexDirection: 'row',
+    backgroundColor: theme.colors.surfaceElevated,
+    borderRadius: theme.radius.lg,
+    borderWidth: 1,
+    borderColor: theme.colors.borderSubtle,
+    padding: theme.space.sm,
+    gap: theme.space.sm,
   },
-  body: {
-    fontSize: 15,
-    lineHeight: 22,
-    color: colors.textSoft,
+  rowPressed: {
+    opacity: 0.85,
+  },
+  dot: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    marginTop: 4,
+    backgroundColor: theme.colors.retryAmber,
+  },
+  rowBody: {
+    flex: 1,
+    minWidth: 0,
   },
   word: {
-    fontSize: 20,
-    fontWeight: '800',
-    color: colors.text,
-    marginBottom: 8,
+    fontFamily: theme.fontDisplay,
+    fontSize: 18,
+    color: theme.colors.text,
+    marginBottom: 2,
   },
-  line: {
-    fontSize: 14,
-    lineHeight: 21,
-    color: colors.textSoft,
-    marginBottom: 4,
+  meta: {
+    fontSize: 13,
+    color: theme.colors.textMuted,
+    lineHeight: 18,
   },
   score: {
     marginTop: 6,
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: '800',
-    color: colors.primary,
+    color: theme.colors.accentGoldDeep,
   },
 });

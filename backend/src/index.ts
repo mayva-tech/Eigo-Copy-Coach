@@ -1,8 +1,8 @@
-import 'dotenv/config';
-import crypto from 'node:crypto';
 import cors from 'cors';
+import 'dotenv/config';
 import express from 'express';
 import fs from 'fs';
+import crypto from 'node:crypto';
 import { synthesizeSpeech } from './tts.js';
 
 const keyPath = (process.env.GOOGLE_APPLICATION_CREDENTIALS || '').trim();
@@ -103,5 +103,5 @@ const port = Number(process.env.PORT || 8080);
 app.listen(port, '0.0.0.0', () => {
   console.log('TTS server running on:');
   console.log(`- http://localhost:${port}`);
-  console.log(`- http://192.168.68.66:${port}  <-- replace with your current LAN IP`);
+  console.log(`- http://192.168.11.40:${port}  <-- replace with your current LAN IP`);
 });
