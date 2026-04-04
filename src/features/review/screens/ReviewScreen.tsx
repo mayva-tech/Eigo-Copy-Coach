@@ -31,14 +31,14 @@ export default function ReviewScreen() {
       <SectionLabel>HISTORY</SectionLabel>
       <Text style={styles.title}>Words to revisit</Text>
       <Text style={[typography.body, styles.sub]}>
-        点数が低かった単語をここに集めます。短く聞いて、もう一度だけ真似してみましょう。
+        てんすうが低かったたんごを、ここにあつめるよ。短くきいて、もういちどだけまねてみよう。
       </Text>
 
       {reviewQueue.length === 0 ? (
         <View style={styles.emptyCard}>
-          <Text style={styles.emptyTitle}>まだデータはありません</Text>
+          <Text style={styles.emptyTitle}>まだなにもないよ</Text>
           <Text style={typography.body}>
-            練習後に「もう一回やりたい単語」がここへ追加されます。
+            れんしゅうのあと、「もういちどやりたいたんご」がここに出るよ。
           </Text>
         </View>
       ) : (
@@ -53,8 +53,8 @@ export default function ReviewScreen() {
                 <View style={styles.dot} />
                 <View style={styles.rowBody}>
                   <Text style={styles.word}>{item.word}</Text>
-                  <Text style={styles.meta}>こう言う: {item.sayItLike}</Text>
-                  <Text style={styles.meta}>口のコツ: {item.mouthTipJa}</Text>
+                  <Text style={styles.meta}>こういう: {item.sayItLike}</Text>
+                  <Text style={styles.meta}>くちのコツ: {item.mouthTipJa}</Text>
                   <Text style={styles.score}>Score {item.score}</Text>
                 </View>
               </Pressable>

@@ -1,5 +1,12 @@
 import { File, Paths } from 'expo-file-system';
 
+/** Wire modes for `/tts` — headword vs phrase samples use separate speaking rates on the server. */
+export type TtsBackendMode =
+  | 'headword_normal'
+  | 'headword_slow'
+  | 'phrase_baseline'
+  | 'phrase_fast';
+
 export type TtsBackendResponse = {
   success: boolean;
   mimeType?: string;
@@ -36,10 +43,21 @@ export function getTtsDevBaseUrlFromEnv(): string {
   return normalizeTtsBaseUrl(raw);
 }
 
+/** Same as env URL when set and valid; otherwise `null` (app uses device TTS). */
+export function getTtsDevBaseUrlOptional(): string | null {
+  const raw = process.env.EXPO_PUBLIC_TTS_DEV_URL?.trim();
+  if (!raw) return null;
+  try {
+    return normalizeTtsBaseUrl(raw);
+  } catch {
+    return null;
+  }
+}
+
 export async function fetchTtsAudioBase64(
   baseUrl: string,
   text: string,
-  mode: 'normal' | 'slow' = 'normal',
+  mode: TtsBackendMode = 'headword_normal',
 ): Promise<string> {
   const root = normalizeTtsBaseUrl(baseUrl);
   const res = await fetch(`${root}/tts`, {

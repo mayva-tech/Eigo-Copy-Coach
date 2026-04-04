@@ -13,18 +13,18 @@ export default function WrongCorrectCard({
 }: WrongCorrectCardProps) {
   return (
     <AppCard>
-      <Text style={styles.title}>ちがいを見る</Text>
+      <Text style={styles.title}>ちがいをみる</Text>
 
       <View style={styles.compareWrap}>
         <View style={styles.side}>
-          <Text style={styles.badLabel}>さけたい形</Text>
+          <Text style={styles.badLabel}>言わないほうがいい</Text>
           <Text style={styles.badText}>{avoidGuide}</Text>
         </View>
 
         <View style={styles.divider} />
 
         <View style={styles.side}>
-          <Text style={styles.goodLabel}>近づけたい形</Text>
+          <Text style={styles.goodLabel}>近づけたいいいかた</Text>
           <Text style={styles.goodText}>{sayItLike}</Text>
         </View>
       </View>

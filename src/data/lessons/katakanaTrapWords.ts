@@ -7,7 +7,7 @@ export const katakanaTrapWords = [
     avoidGuide: 'nai-fu',
     category: 'katakana_trap',
     jpMistakeType: 'extra_vowel_ending',
-    mouthTipJa: '最後の f を消さない',
+    mouthTipJa: '最後の f ははっきり言う',
     mouthTipEn: 'Do not add a vowel after F',
   },
 ];

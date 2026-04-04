@@ -4,8 +4,8 @@ import type { PracticeFeedback } from '@/src/features/practice/types/practice.ty
 export function getInitialFeedback(): PracticeFeedback {
   return {
     tone: 'neutral',
-    title: 'まずは聞いてみよう',
-    body: 'Play か Slow を押して、音の形をつかもう。',
+    title: 'まずきいてみよう',
+    body: 'Play か Slow をおして、音のかたちをつかもう。',
     score: null,
   };
 }
@@ -14,8 +14,8 @@ export function buildMockFeedback(word: WordItem, attemptCount: number): Practic
   if (attemptCount <= 1) {
     return {
       tone: 'neutral',
-      title: 'いい感じ',
-      body: `「${word.sayItLike}」の形に近づけよう。${word.mouthTipJa}`,
+      title: 'いいかんじ',
+      body: `「${word.sayItLike}」に近づけよう。${word.mouthTipJa}`,
       score: 72,
     };
   }
@@ -23,8 +23,8 @@ export function buildMockFeedback(word: WordItem, attemptCount: number): Practic
   if (attemptCount === 2) {
     return {
       tone: 'good',
-      title: 'かなり良い',
-      body: `スペルではなく音で言えている。${word.avoidGuide} っぽくしないのが大事。`,
+      title: 'かなりよい',
+      body: `スペルじゃなく音でいえてる。${word.avoidGuide} みたいに言わないのがだいじ。`,
       score: 84,
     };
   }
@@ -32,7 +32,7 @@ export function buildMockFeedback(word: WordItem, attemptCount: number): Practic
   return {
     tone: 'good',
     title: 'よくできた',
-    body: 'この調子で次の単語へ進もう。',
+    body: 'このちょうしで、つぎのたんごへいこう。',
     score: 92,
   };
 }

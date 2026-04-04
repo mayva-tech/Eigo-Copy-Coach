@@ -9,4 +9,5 @@ export const ROUTES = {
   REVIEW: '/(tabs)/history',
   SESSION_COMPLETE: '/session-complete',
   SETTINGS: '/settings',
+  TOEIC: '/toeic',
 } as const;

@@ -46,7 +46,7 @@ app.get('/health', (_req, res) => {
 app.get('/tts', (_req, res) => {
   res.status(405).set('Allow', 'POST').json({
     error:
-      'TTS uses POST, not GET. Send JSON: { "text": "hello", "mode": "normal" | "slow" }. Example (PowerShell): Invoke-RestMethod -Uri http://localhost:8080/tts -Method Post -ContentType "application/json" -Body \'{"text":"hello"}\'',
+      'TTS uses POST, not GET. Send JSON: { "text": "hello", "mode": "headword_normal" | "headword_slow" | "phrase_baseline" | "phrase_fast" }. Example (PowerShell): Invoke-RestMethod -Uri http://192.168.68.66:8080/tts -Method Post -ContentType "application/json" -Body \'{"text":"hello"}\'',
   });
 });
 
@@ -66,13 +66,28 @@ app.post('/tts', async (req, res) => {
       return res.status(400).json({ success: false, error: 'Missing text' });
     }
 
-    const mode =
-      typeof modeRaw === 'string' && modeRaw.toLowerCase().trim() === 'slow'
-        ? 'slow'
-        : 'normal';
+    const modeNorm = typeof modeRaw === 'string' ? modeRaw.toLowerCase().trim() : '';
 
-    // Google speakingRate: 1.0 = default; ~0.5 ≈ 2× slower, 0.25 = min (≈ 4× slower than 1.0).
-    const speakingRate = mode === 'slow' ? 0.25 : 0.5;
+    // Headword (Play/Slow) vs phrase chips — edit phrase_* here to change phrase-only speed (Google speakingRate).
+    const speakingRateByMode: Record<string, number> = {
+      headword_normal: 0.8,
+      headword_slow: 0.40,
+      phrase_baseline: 0.4,
+      phrase_fast: 0.80,
+    };
+
+    const speakingRate =
+      speakingRateByMode[modeNorm] ??
+      // Back-compat for older clients
+      (modeNorm === 'slow' ? 0.25 : modeNorm === 'fast' ? 1.0 : 0.5);
+
+    if (process.env.NODE_ENV !== 'production') {
+      console.log('[tts]', {
+        modeRaw: modeRaw ?? '(missing)',
+        modeNorm: modeNorm || '(empty → fallback)',
+        speakingRate,
+      });
+    }
 
     const audioBase64 = await synthesizeSpeech({
       text,
@@ -102,6 +117,6 @@ const port = Number(process.env.PORT || 8080);
 
 app.listen(port, '0.0.0.0', () => {
   console.log('TTS server running on:');
-  console.log(`- http://localhost:${port}`);
-  console.log(`- http://192.168.11.40:${port}  <-- replace with your current LAN IP`);
+  console.log(`- http://localhost:${port}  (this PC only)`);
+  console.log(`- http://192.168.68.66:${port}  (phone / other device on same Wi‑Fi)`);
 });

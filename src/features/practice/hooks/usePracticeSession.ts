@@ -32,14 +32,14 @@ export function usePracticeSession(lessonId: string) {
     if (mode === 'normal') {
       setFeedback({
         tone: 'neutral',
-        title: 'こう聞こえる',
+        title: 'こうきこえる',
         body: currentWord.sayItLike,
         score: null,
       });
     } else {
       setFeedback({
         tone: 'neutral',
-        title: 'ゆっくり聞く',
+        title: 'ゆっくりきく',
         body: currentWord.slowGuide,
         score: null,
       });

@@ -17,25 +17,25 @@ export default function PaywallScreen({ onSubscribePress }: PaywallScreenProps) 
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}>
         <View style={styles.headerBlock}>
-          <Text style={styles.title}>発音、もう一段クリアに</Text>
+          <Text style={styles.title}>はつおん、もうすこしクリアに</Text>
           <Text style={styles.subtitle}>
-            同じ単語でも、音が変わると理解しやすくなる
+            おなじたんごでも、音がかわるとわかりやすくなる
           </Text>
         </View>
 
         <Text style={styles.valueBody}>
-          音の輪郭がはっきりすると、聞き取りやすさが少しずつ変わります。焦らず、自分のペースで。
+          音のかたちがはっきりすると、ききとりやすさがすこしずつかわるよ。あせらず、じぶんのペースで。
         </Text>
 
         <AppCard>
-          <Text style={styles.sectionLabel}>聞こえ方のイメージ</Text>
+          <Text style={styles.sectionLabel}>きこえ方のイメージ</Text>
           <View style={styles.compareRow}>
-            <Text style={styles.compareLabel}>標準音声</Text>
+            <Text style={styles.compareLabel}>ふつうの音声</Text>
             <Text style={styles.compareArrow}>→</Text>
             <Text style={styles.compareExampleMuted}>nai-fu</Text>
           </View>
           <View style={[styles.compareRow, styles.compareRowLast]}>
-            <Text style={styles.compareLabel}>クリア音声</Text>
+            <Text style={styles.compareLabel}>クリアな音声</Text>
             <Text style={styles.compareArrow}>→</Text>
             <Text style={styles.compareExample}>naif</Text>
           </View>
@@ -45,28 +45,28 @@ export default function PaywallScreen({ onSubscribePress }: PaywallScreenProps) 
 
         <AppCard>
           <Text style={styles.planName}>無料プラン</Text>
-          <Bullet text="毎日の3語練習" />
-          <Bullet text="標準音声で再生" />
-          <Bullet text="基本の復習" last />
+          <Bullet text="まいにち3語のれんしゅう" />
+          <Bullet text="ふつうの音声できく" />
+          <Bullet text="かんたんなふくしゅう" last />
         </AppCard>
 
         <AppCard style={styles.premiumCard}>
           <Text style={styles.planNamePremium}>Premium</Text>
-          <Bullet text="より自然で聞き取りやすい音声" />
-          <Bullet text="ゆっくり再生" />
-          <Bullet text="音の区切り再生" />
-          <Bullet text="すべてのレッスン" />
-          <Bullet text="復習の保存数 無制限" last />
+          <Bullet text="もっと自然でききとりやすい音声" />
+          <Bullet text="ゆっくりさいせい" />
+          <Bullet text="音の区切りでさいせい" />
+          <Bullet text="ぜんぶのレッスン" />
+          <Bullet text="ふくしゅうはたくさん保存" last />
         </AppCard>
 
         <AppButton
-          label="クリア音声で練習する"
+          label="クリアな音声でれんしゅうする"
           onPress={() => onSubscribePress?.()}
         />
 
         <View style={styles.footer}>
-          <Text style={styles.footerLine}>7日間無料体験 / いつでもキャンセル可能</Text>
-          <Text style={styles.footerSoft}>まずは無料で続けてOKです。</Text>
+          <Text style={styles.footerLine}>7日間ただ / いつでもやめる</Text>
+          <Text style={styles.footerSoft}>まずは無料のままでもOK。</Text>
         </View>
       </ScrollView>
     </SafeAreaView>

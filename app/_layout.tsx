@@ -70,6 +70,7 @@ function RootNavigator() {
       <Stack.Screen name="review" />
       <Stack.Screen name="session-complete" />
       <Stack.Screen name="settings" />
+      <Stack.Screen name="toeic" />
     </Stack>
   );
 }

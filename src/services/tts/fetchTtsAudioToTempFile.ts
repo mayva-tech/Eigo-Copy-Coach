@@ -2,11 +2,12 @@ import {
   fetchTtsAudioBase64,
   getTtsDevBaseUrlFromEnv,
   saveTtsMp3ToCache,
+  type TtsBackendMode,
 } from './ttsBackendClient';
 
 export async function fetchTtsAudioToTempFile(
   text: string,
-  mode: 'normal' | 'slow' = 'normal',
+  mode: TtsBackendMode = 'headword_normal',
 ): Promise<string> {
   const baseUrl = getTtsDevBaseUrlFromEnv();
   // Temporary: confirm what URL Metro bundled (remove when TTS fetch is stable).

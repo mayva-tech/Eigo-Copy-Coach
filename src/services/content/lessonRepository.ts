@@ -11,7 +11,7 @@ const lessonTitles: Record<string, string> = {
 };
 
 const lessonTitlesJa: Record<string, string> = {
-  'lesson-01': 'RとLの音',
+  'lesson-01': 'カタカナ読みをなおす',
 };
 
 export function getLessonTitle(lessonId: string): string {
@@ -20,7 +20,7 @@ export function getLessonTitle(lessonId: string): string {
 
 /** Japanese gloss for the current lesson title (home / headers). */
 export function getLessonTitleJa(lessonId: string): string {
-  return lessonTitlesJa[lessonId] ?? 'デイリー練習';
+  return lessonTitlesJa[lessonId] ?? 'まいにちのれんしゅう';
 }
 
 export function getLessonWords(lessonId: string): WordItem[] {

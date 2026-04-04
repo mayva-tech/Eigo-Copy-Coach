@@ -14,7 +14,7 @@ export default function PromptCard({ word, meaningJa, onListen }: PromptCardProp
     <View style={styles.card}>
       <Text style={styles.label}>
         SAY THIS WORD
-        <Text style={styles.labelJa}> この単語を言う</Text>
+        <Text style={styles.labelJa}> このたんごをいう</Text>
       </Text>
       <Text
         style={typography.wordHero}
@@ -38,7 +38,7 @@ export default function PromptCard({ word, meaningJa, onListen }: PromptCardProp
       </Pressable>
       <Text style={styles.listenHint}>
         Listen first
-        <Text style={styles.listenHintJa}> まず聞く</Text>
+        <Text style={styles.listenHintJa}> まずきく</Text>
       </Text>
     </View>
   );

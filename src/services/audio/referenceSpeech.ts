@@ -1,17 +1,101 @@
 import * as Speech from 'expo-speech';
 
+import {
+  pauseBackendTtsPlayback,
+  playTtsFromBackend,
+} from '@/src/services/audio/backendTtsPlay';
+import type { TtsBackendMode } from '@/src/services/tts/ttsBackendClient';
+import { getTtsDevBaseUrlOptional } from '@/src/services/tts/ttsBackendClient';
+
+/** Main word: Play / Slow (practice + TOEIC headword). */
+export type EnglishHeadwordMode = 'normal' | 'slow';
+
+/** Phrase sample chips only — independent device/backend rates from headword. */
+export type EnglishPhraseSampleMode = 'baseline' | 'fast';
+
+/** Device TTS only (no `EXPO_PUBLIC_TTS_DEV_URL`). Lower = slower. */
+const DEVICE_HEADWORD_RATE: Record<EnglishHeadwordMode, number> = {
+  normal: 0.7,
+  slow: 0.1,
+};
+
 /**
- * Speaks the headword with device TTS (Play / Slow). Not a studio reference track—good enough for MVP.
- * Stops any current speech first so taps don’t queue endlessly.
+ * Device TTS only for phrase taps (`speakEnglishPhraseSample`).
+ * When backend TTS is on, change speeds in `backend/src/index.ts` → `phrase_baseline` / `phrase_fast`.
+ * (Previously baseline matched headword Play, so they sounded the same.)
  */
-export async function speakEnglishWord(word: string, mode: 'normal' | 'slow'): Promise<void> {
+const DEVICE_PHRASE_SAMPLE_RATE: Record<EnglishPhraseSampleMode, number> = {
+  baseline: 0.32,
+  fast: 0.55,
+};
+
+/** Phrase Japanese gloss — device only; matches phrase toggle (Slow = ゆっくり, Normal = ふつう). */
+const DEVICE_JA_PHRASE_RATE: Record<EnglishPhraseSampleMode, number> = {
+  baseline: 0.40,
+  fast: 0.80,
+};
+
+async function speakEnglishWithBackendMode(
+  text: string,
+  backendMode: TtsBackendMode,
+  deviceRate: number,
+): Promise<void> {
+  const backendUrl = getTtsDevBaseUrlOptional();
+  if (backendUrl) {
+    try {
+      await Speech.stop();
+      await playTtsFromBackend(backendUrl, text, backendMode);
+      return;
+    } catch (e) {
+      console.warn('[referenceSpeech] Backend TTS failed, using device TTS', e);
+    }
+  }
+
+  pauseBackendTtsPlayback();
   await Speech.stop();
-  // Expo: 1.0 = normal on both platforms. iOS native multiplies by AVSpeechUtteranceDefaultSpeechRate; very low
-  // values (e.g. 0.18 vs 0.38) can end up similarly after system clamping, so Play/Slow sounded the same.
-  const rate = mode === 'slow' ? 0.5 : 1.0;
-  Speech.speak(word, {
+  Speech.speak(text, {
     language: 'en-US',
-    rate,
-    pitch: 0.95,
+    rate: deviceRate,
+    pitch: 0.65,
+  });
+}
+
+/**
+ * Headword reference: Play (`normal`) / Slow (`slow`). Rates are separate from {@link speakEnglishPhraseSample}.
+ */
+export async function speakEnglishWord(word: string, mode: EnglishHeadwordMode): Promise<void> {
+  const backendMode: TtsBackendMode = mode === 'slow' ? 'headword_slow' : 'headword_normal';
+  await speakEnglishWithBackendMode(word, backendMode, DEVICE_HEADWORD_RATE[mode]);
+}
+
+/**
+ * TOEIC (etc.) phrase English line. `baseline` matches the previous default phrase speed; `fast` is quicker.
+ * Tuned via {@link DEVICE_PHRASE_SAMPLE_RATE} and backend `phrase_*` modes — not linked to headword Play/Slow.
+ */
+export async function speakEnglishPhraseSample(
+  text: string,
+  mode: EnglishPhraseSampleMode,
+): Promise<void> {
+  const backendMode: TtsBackendMode = mode === 'fast' ? 'phrase_fast' : 'phrase_baseline';
+  await speakEnglishWithBackendMode(text, backendMode, DEVICE_PHRASE_SAMPLE_RATE[mode]);
+}
+
+/**
+ * Phrase glosses — device `ja-JP` TTS only. Use same phrase toggle as English: `baseline` = slow (0.42), `fast` = normal.
+ * Tune in {@link DEVICE_JA_PHRASE_RATE}.
+ */
+export async function speakJapaneseText(
+  text: string,
+  phraseSpeed: EnglishPhraseSampleMode = 'baseline',
+): Promise<void> {
+  const trimmed = text.trim();
+  if (!trimmed) return;
+
+  pauseBackendTtsPlayback();
+  await Speech.stop();
+  Speech.speak(trimmed, {
+    language: 'ja-JP',
+    rate: DEVICE_JA_PHRASE_RATE[phraseSpeed],
+    pitch: 1.0,
   });
 }

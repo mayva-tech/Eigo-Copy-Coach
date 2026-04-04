@@ -147,7 +147,7 @@ export default function PracticeScreen() {
       await audio.startRecording();
     } catch (error) {
       console.error(error);
-      Alert.alert('マイクが必要です', '録音するにはマイクの許可が必要です。');
+      Alert.alert('マイクがひつよう', '録音するにはマイクをOKしてね。');
     }
   };
 
@@ -157,7 +157,7 @@ export default function PracticeScreen() {
       await registerAttemptResult(uri);
     } catch (error) {
       console.error(error);
-      Alert.alert('録音エラー', '録音の停止に失敗しました。もう一度試してください。');
+      Alert.alert('録音エラー', 'とまらなかった。もういちどためしてね。');
     }
   };
 
@@ -204,8 +204,8 @@ export default function PracticeScreen() {
   if (!currentWord) {
     return (
       <ScreenContainer>
-        <Text style={styles.emptyTitle}>レッスンが見つかりません</Text>
-        <PrimaryButton label="ホームへ戻る" onPress={() => router.replace(ROUTES.HOME)} />
+        <Text style={styles.emptyTitle}>レッスンがみつからない</Text>
+        <PrimaryButton label="ホームへもどる" onPress={() => router.replace(ROUTES.HOME)} />
       </ScreenContainer>
     );
   }
@@ -214,7 +214,7 @@ export default function PracticeScreen() {
   const progressCurrent = currentIndex + 1;
   const feedbackLines = [feedback.title, feedback.body].filter((s) => s.trim().length > 0);
   const showTryAgain = feedback.score != null;
-  const tipText = `${currentWord.mouthTipJa} Avoid 避ける: ${currentWord.avoidGuide}`;
+  const tipText = `${currentWord.mouthTipJa} カタカナみたいに言わない: ${currentWord.avoidGuide}`;
 
   const finishSession = () => {
     router.push({
@@ -260,7 +260,7 @@ export default function PracticeScreen() {
           onPress={toggleRecord}
           disabled={!audio.status.audioReady}
         />
-        <Text style={styles.tapLabel}>Tap to speak タップして話す</Text>
+        <Text style={styles.tapLabel}>Tap to speak タップしていう</Text>
         {audio.status.hasRecording ? (
           <Animated.View style={[styles.replayPopWrap, { transform: [{ scale: replayPop }] }]}>
             <Pressable
@@ -284,16 +284,16 @@ export default function PracticeScreen() {
         onSkip={() => (isLast ? finishSession() : nextWord())}
         onTryAgain={retryCurrentWord}
         skipLabel={isLast ? 'Finish' : 'Skip'}
-        skipLabelJa={isLast ? '完了' : 'スキップ'}
+        skipLabelJa={isLast ? 'おわる' : 'とばす'}
         tryAgainLabel="Try again"
-        tryAgainLabelJa="もう一回"
+        tryAgainLabelJa="もういちど"
       />
 
       <View style={styles.navRow}>
-        <SecondaryButton label="Previous" labelSuffixJa="前へ" onPress={previousWord} flex={1} />
+        <SecondaryButton label="Previous" labelSuffixJa="まえへ" onPress={previousWord} flex={1} />
         <PrimaryButton
           label={isLast ? 'Done' : 'Next word'}
-          labelSuffixJa={isLast ? '完了' : '次の単語'}
+          labelSuffixJa={isLast ? 'おわる' : 'つぎのたんご'}
           onPress={isLast ? finishSession : nextWord}
           flex={1}
         />

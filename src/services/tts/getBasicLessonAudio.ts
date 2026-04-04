@@ -8,5 +8,6 @@ export async function getBasicLessonAudio(
   text: string,
   mode: 'normal' | 'slow' = 'normal',
 ): Promise<string> {
-  return fetchTtsAudioToTempFile(text, mode);
+  const backendMode = mode === 'slow' ? 'headword_slow' : 'headword_normal';
+  return fetchTtsAudioToTempFile(text, backendMode);
 }

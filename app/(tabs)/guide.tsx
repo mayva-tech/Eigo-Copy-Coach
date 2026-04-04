@@ -12,7 +12,8 @@ export default function GuideTab() {
       eyebrow="TIPS"
       body="Short, calm guidance on R/L, TH, stress, and silent letters will live here. You can revisit the full intro anytime."
       footer={
-        <View style={{ marginTop: 12 }}>
+        <View style={{ marginTop: 12, gap: 10 }}>
+          <SecondaryButton label="Open TOEIC vocab" labelSuffixJa="TOEICのたんご" onPress={() => router.push(ROUTES.TOEIC)} />
           <SecondaryButton label="Open onboarding" onPress={() => router.push(ROUTES.ONBOARDING)} />
         </View>
       }

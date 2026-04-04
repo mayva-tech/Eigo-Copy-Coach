@@ -9,7 +9,7 @@ type MouthCoachCardProps = {
 export default function MouthCoachCard({ mouthTipJa }: MouthCoachCardProps) {
   return (
     <AppCard>
-      <Text style={styles.title}>口のコツ</Text>
+      <Text style={styles.title}>くちのコツ</Text>
       <Text style={styles.body}>{mouthTipJa}</Text>
     </AppCard>
   );

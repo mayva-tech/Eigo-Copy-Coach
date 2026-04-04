@@ -1,15 +1,17 @@
 /**
- * Japanese glosses for English UI on the home screen (JP learners).
- * English stays primary for lesson/focus terminology where useful.
+ * Japanese on the home screen — short, plain wording (中学生でもわかりやすく).
  */
 
 export const homeScreenJa = {
-  dailyPracticeEyebrow: '毎日の練習',
-  focusAreasEyebrow: '重点エリア',
-  nowPracticingEyebrow: '今練習中',
+  dailyPracticeEyebrow: 'まいにちのれんしゅう',
+  focusAreasEyebrow: 'よくきになるところ',
+  nowPracticingEyebrow: 'いまやってる',
   brandSubtitle: '英語コピーコーチ',
-  statStreakCaption: '連続日数',
-  statClarityCaption: '明瞭度',
-  statWordsCaption: '学習した語数',
-  continuePracticeJa: '練習を続ける',
+  statStreakCaption: 'れんぞくの日',
+  statClarityCaption: 'はっきり度',
+  statWordsCaption: 'おぼえた語の数',
+  continuePracticeJa: 'れんしゅうをつづける',
+  toeicEyebrow: 'TOEIC のたいさく',
+  toeicTitleJa: 'たんごとはつおん',
+  toeicSubtitleJa: '100語 · アクセントのコツ · 音声',
 } as const;

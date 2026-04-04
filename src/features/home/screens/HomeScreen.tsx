@@ -69,6 +69,30 @@ export default function HomeScreen() {
         onContinue={() => router.push(`/practice/${lessonId}`)}
       />
 
+      <SectionLabel subtitleJa={homeScreenJa.toeicEyebrow} style={styles.sectionAfterHero}>
+        TOEIC VOCAB
+      </SectionLabel>
+      <Pressable
+        onPress={() => router.push(ROUTES.TOEIC)}
+        style={({ pressed }) => [styles.toeicCard, pressed && styles.toeicCardPressed]}
+        accessibilityRole="button"
+        accessibilityLabel="Open TOEIC vocabulary and pronunciation"
+      >
+        <View style={styles.toeicCardInner}>
+          <View style={styles.toeicTextBlock}>
+            <Text style={styles.toeicTitle}>
+              Vocabulary & pronunciation
+              <Text style={styles.toeicTitleJa}> {homeScreenJa.toeicTitleJa}</Text>
+            </Text>
+            <Text style={styles.toeicSubtitle}>
+              100 high-value words · stress hints · listen
+              <Text style={styles.toeicSubtitleJa}> {homeScreenJa.toeicSubtitleJa}</Text>
+            </Text>
+          </View>
+          <Ionicons name="chevron-forward" size={22} color={theme.colors.textMuted} />
+        </View>
+      </Pressable>
+
       <SectionLabel subtitleJa={homeScreenJa.focusAreasEyebrow}>FOCUS AREAS</SectionLabel>
       <View style={styles.focusCard}>
         {FOCUS_AREAS.map((item, index) => (
@@ -133,6 +157,53 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: theme.space.xs,
     marginBottom: theme.space.md,
+  },
+  sectionAfterHero: {
+    marginTop: theme.space.md,
+  },
+  toeicCard: {
+    backgroundColor: theme.colors.surfaceElevated,
+    borderRadius: theme.radius.xl,
+    borderWidth: 1,
+    borderColor: theme.colors.borderSubtle,
+    marginBottom: theme.space.md,
+    overflow: 'hidden',
+  },
+  toeicCardPressed: {
+    opacity: 0.88,
+  },
+  toeicCardInner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: theme.space.md,
+    paddingVertical: theme.space.md,
+    gap: theme.space.sm,
+  },
+  toeicTextBlock: {
+    flex: 1,
+    gap: 4,
+  },
+  toeicTitle: {
+    fontFamily: theme.fontDisplay,
+    fontSize: 18,
+    color: theme.colors.text,
+    lineHeight: 24,
+  },
+  toeicTitleJa: {
+    fontSize: 15,
+    fontWeight: '700',
+    color: theme.colors.text,
+  },
+  toeicSubtitle: {
+    fontSize: 13,
+    color: theme.colors.textSecondary,
+    lineHeight: 18,
+  },
+  toeicSubtitleJa: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: theme.colors.textMuted,
   },
   focusCard: {
     backgroundColor: theme.colors.surfaceElevated,

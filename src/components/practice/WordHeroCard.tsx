@@ -39,7 +39,7 @@ export default function WordHeroCard({
         <Text style={styles.meaningJa}>{meaningJa}</Text>
       </View>
 
-      <Text style={styles.sayLabel}>こう言う</Text>
+      <Text style={styles.sayLabel}>こういう</Text>
       <Text style={styles.sayItLike}>{sayItLike}</Text>
 
       <View style={styles.actions}>

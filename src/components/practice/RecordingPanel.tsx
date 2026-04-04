@@ -23,36 +23,36 @@ export default function RecordingPanel({
 }: RecordingPanelProps) {
   return (
     <AppCard>
-      <Text style={styles.title}>声に出してみる</Text>
+      <Text style={styles.title}>声にだしてみる</Text>
       <Text style={styles.body}>
-        まずは完璧じゃなくていい。聞こえた形をそのまま言えば大丈夫。
+        まずはぜんぜんパーフェクトじゃなくていい。きこえたとおりにいえばOK。
       </Text>
 
       <View style={styles.statusWrap}>
         <View style={[styles.dot, isRecording && styles.dotActive]} />
         <Text style={styles.statusText}>
           {isRecording
-            ? '録音中… 話してみよう'
+            ? '録音ちゅう… はなしてみよう'
             : micGranted
-              ? '録音できます'
-              : 'マイク許可が必要です'}
+              ? '録音できるよ'
+              : 'マイクをOKしてね'}
         </Text>
       </View>
 
       <View style={styles.actions}>
         {isRecording ? (
-          <AppButton label="録音を止める" onPress={onStop} />
+          <AppButton label="録音をとめる" onPress={onStop} />
         ) : (
           <AppButton label="録音する" onPress={onStart} />
         )}
 
-        <AppButton label="自分の声を聞く" variant="secondary" onPress={onReplay} />
+        <AppButton label="じぶんの声をきく" variant="secondary" onPress={onReplay} />
       </View>
 
       {!hasRecording ? (
-        <Text style={styles.footnote}>まだ録音はありません。</Text>
+        <Text style={styles.footnote}>まだ録音はないよ。</Text>
       ) : (
-        <Text style={styles.footnote}>最新の録音を再生できます。</Text>
+        <Text style={styles.footnote}>さいしんの録音をきけるよ。</Text>
       )}
     </AppCard>
   );

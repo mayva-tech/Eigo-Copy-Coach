@@ -17,9 +17,9 @@ export default function PracticeActions({
   onSkip,
   onTryAgain,
   skipLabel = 'Skip',
-  skipLabelJa = 'スキップ',
+  skipLabelJa = 'とばす',
   tryAgainLabel = 'Try again',
-  tryAgainLabelJa = 'もう一回',
+  tryAgainLabelJa = 'もういちど',
 }: PracticeActionsProps) {
   return (
     <View style={styles.row}>

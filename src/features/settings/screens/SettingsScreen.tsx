@@ -40,10 +40,10 @@ export default function SettingsScreen() {
     const url = devTtsUrl.trim();
     if (!url) {
       Alert.alert(
-        isEnglish ? 'Add your computer address' : 'PC のアドレスを入力してください',
+        isEnglish ? 'Add your computer address' : 'PCのアドレスを入れてね',
         isEnglish
-          ? 'Use http:// and your PC’s Wi-Fi address, for example http://192.168.11.40:8080 (not localhost on the phone).'
-          : 'http:// で始まる PC の Wi-Fi アドレスを使ってください（例: http://192.168.11.40:8080）。スマホでは localhost は使えません。',
+          ? 'Use http:// and your PC’s Wi-Fi address, for example http://192.168.68.66:8080 (not localhost on the phone).'
+          : 'http:// からはじまる、PCのWi-Fiのアドレスを使ってね（例: http://192.168.68.66:8080）。スマホでは localhost はだめ。',
       );
       return;
     }
@@ -52,7 +52,7 @@ export default function SettingsScreen() {
       await playTtsFromDevBackend(url, 'knife');
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);
-      Alert.alert(isEnglish ? 'TTS test failed' : 'TTS テストに失敗しました', msg);
+      Alert.alert(isEnglish ? 'TTS test failed' : '音声テストがだめだった', msg);
     } finally {
       setDevTtsBusy(false);
     }
@@ -89,18 +89,18 @@ export default function SettingsScreen() {
         {__DEV__ ? (
           <AppCard>
             <Text style={styles.sectionTitle}>
-              {isEnglish ? 'Developer: TTS server (Expo Go)' : '開発者向け: TTS サーバー（Expo Go）'}
+              {isEnglish ? 'Developer: TTS server (Expo Go)' : 'かいはつしゃよう: 音声サーバー'}
             </Text>
             <Text style={styles.value}>
               {isEnglish
                 ? 'Phone and PC must be on the same Wi-Fi. Use your PC’s IP (not localhost), backend running on port 8080.'
-                : 'スマホと PC を同じ Wi-Fi に接続してください。localhost ではなく PC の IP を使い、バックエンドを 8080 ポートで起動します。'}
+                : 'スマホとPCは同じWi-Fiにしてね。PCのIPを使う（localhostはだめ）。サーバーは8080番。'}
             </Text>
-            <Text style={styles.label}>{isEnglish ? 'Server base URL' : 'サーバーURL'}</Text>
+            <Text style={styles.label}>{isEnglish ? 'Server base URL' : 'サーバーのURL'}</Text>
             <TextInput
               value={devTtsUrl}
               onChangeText={setDevTtsUrl}
-              placeholder="http://192.168.11.40:8080"
+              placeholder="http://192.168.68.66:8080"
               placeholderTextColor={colors.textMuted}
               autoCapitalize="none"
               autoCorrect={false}
@@ -120,7 +120,7 @@ export default function SettingsScreen() {
                 <ActivityIndicator color={colors.primary} />
               ) : (
                 <Text style={styles.devTestButtonText}>
-                  {isEnglish ? 'Play test word ("knife")' : 'テスト単語を再生（"knife"）'}
+                  {isEnglish ? 'Play test word ("knife")' : 'テストで knife をきかせる'}
                 </Text>
               )}
             </Pressable>
