@@ -1,4 +1,4 @@
-import { Pressable, StyleSheet, Text, type StyleProp, type ViewStyle } from 'react-native';
+import { Pressable, StyleSheet, Text, type StyleProp, type TextStyle, type ViewStyle } from 'react-native';
 
 import { theme } from '@/src/theme/pronunciationTheme';
 import { pressScaleStyle } from '@/src/utils/pressScale';
@@ -7,12 +7,24 @@ type SecondaryButtonProps = {
   label: string;
   /** Japanese gloss on the same line as the label, smaller type. */
   labelSuffixJa?: string;
+  /** Optional style overrides for the main label text. */
+  labelStyle?: StyleProp<TextStyle>;
+  /** Optional style overrides for the Japanese suffix text. */
+  labelJaStyle?: StyleProp<TextStyle>;
   onPress: () => void;
   flex?: number;
   style?: StyleProp<ViewStyle>;
 };
 
-export default function SecondaryButton({ label, labelSuffixJa, onPress, flex, style }: SecondaryButtonProps) {
+export default function SecondaryButton({
+  label,
+  labelSuffixJa,
+  labelStyle,
+  labelJaStyle,
+  onPress,
+  flex,
+  style,
+}: SecondaryButtonProps) {
   return (
     <Pressable
       onPress={onPress}
@@ -24,9 +36,9 @@ export default function SecondaryButton({ label, labelSuffixJa, onPress, flex, s
         pressed && styles.pressed,
       ]}
     >
-      <Text style={styles.label}>
+      <Text style={[styles.label, labelStyle]}>
         {label}
-        {labelSuffixJa ? <Text style={styles.labelJa}> {labelSuffixJa}</Text> : null}
+        {labelSuffixJa ? <Text style={[styles.labelJa, labelJaStyle]}> {labelSuffixJa}</Text> : null}
       </Text>
     </Pressable>
   );

@@ -1,28 +1,53 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
 import { buildMockFeedback, getInitialFeedback } from '@/src/features/practice/utils/scoreHelpers';
 import type { PracticeFeedback } from '@/src/features/practice/types/practice.types';
 import { speakEnglishWord } from '@/src/services/audio/referenceSpeech';
-import { getLessonWords } from '@/src/services/content/lessonRepository';
+import { getLessonWords, LESSON_TOEIC_ID } from '@/src/services/content/lessonRepository';
 import { useSessionSummaryStore } from '@/src/store/sessionSummaryStore';
 import { usePracticeStore } from '@/src/store/usePracticeStore';
+import { useToeicPracticeStore } from '@/src/store/useToeicPracticeStore';
+import { useToeicWordStatsStore } from '@/src/store/useToeicWordStatsStore';
 
 /** Words at or below this mock score are saved to the local review queue. */
 const REVIEW_SCORE_THRESHOLD = 85;
 
-export function usePracticeSession(lessonId: string) {
-  const words = useMemo(() => getLessonWords(lessonId), [lessonId]);
+export function usePracticeSession(lessonId: string, initialWordId?: string | null) {
+  const toeicPracticeWords = useToeicPracticeStore((s) => s.words);
+  const words = useMemo(() => {
+    if (lessonId === LESSON_TOEIC_ID) return toeicPracticeWords;
+    return getLessonWords(lessonId);
+  }, [lessonId, toeicPracticeWords]);
 
   useEffect(() => {
     useSessionSummaryStore.getState().startSession(lessonId);
   }, [lessonId]);
 
   const [currentIndex, setCurrentIndex] = useState(0);
+  /** Avoid re-applying the same deep-link jump when `words` identity updates. */
+  const appliedInitialKeyRef = useRef<string | null>(null);
   const [attemptCount, setAttemptCount] = useState(0);
   const [feedback, setFeedback] = useState<PracticeFeedback>(getInitialFeedback());
   const [recordedUri, setRecordedUri] = useState<string | null>(null);
 
   const addReviewItem = usePracticeStore((state) => state.addReviewItem);
+
+  useEffect(() => {
+    appliedInitialKeyRef.current = null;
+  }, [lessonId, initialWordId]);
+
+  useEffect(() => {
+    if (!words.length || !initialWordId) return;
+    const key = `${lessonId}:${initialWordId}`;
+    if (appliedInitialKeyRef.current === key) return;
+    const idx = words.findIndex((w) => w.id === initialWordId);
+    if (idx < 0) return;
+    appliedInitialKeyRef.current = key;
+    setCurrentIndex(idx);
+    setAttemptCount(0);
+    setRecordedUri(null);
+    setFeedback(getInitialFeedback());
+  }, [lessonId, words, initialWordId]);
 
   const currentWord = words[currentIndex] ?? null;
   const progressLabel = `${Math.min(currentIndex + 1, words.length)} / ${words.length}`;
@@ -94,6 +119,14 @@ export function usePracticeSession(lessonId: string) {
         createdAt: Date.now(),
         recordedUri: uri,
       });
+    }
+
+    if (currentWord.id.startsWith('toeic-')) {
+      const tail = currentWord.id.slice('toeic-'.length);
+      const toeicNumericId = parseInt(tail, 10);
+      if (!Number.isNaN(toeicNumericId)) {
+        useToeicWordStatsStore.getState().recordPracticeAttempt(toeicNumericId, score);
+      }
     }
   };
 

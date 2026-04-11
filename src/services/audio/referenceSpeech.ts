@@ -35,18 +35,38 @@ const DEVICE_JA_PHRASE_RATE: Record<EnglishPhraseSampleMode, number> = {
   fast: 0.80,
 };
 
+const BACKEND_TTS_TIMEOUT_MS = 1200;
+const BACKEND_TTS_FAIL_COOLDOWN_MS = 60_000;
+let backendTtsDisabledUntilMs = 0;
+
+async function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
+  let timer: ReturnType<typeof setTimeout> | null = null;
+  try {
+    return await Promise.race<T>([
+      promise,
+      new Promise<T>((_, reject) => {
+        timer = setTimeout(() => reject(new Error(`Backend TTS timeout (${ms}ms)`)), ms);
+      }),
+    ]);
+  } finally {
+    if (timer) clearTimeout(timer);
+  }
+}
+
 async function speakEnglishWithBackendMode(
   text: string,
   backendMode: TtsBackendMode,
   deviceRate: number,
 ): Promise<void> {
   const backendUrl = getTtsDevBaseUrlOptional();
-  if (backendUrl) {
+  const now = Date.now();
+  if (backendUrl && now >= backendTtsDisabledUntilMs) {
     try {
       await Speech.stop();
-      await playTtsFromBackend(backendUrl, text, backendMode);
+      await withTimeout(playTtsFromBackend(backendUrl, text, backendMode), BACKEND_TTS_TIMEOUT_MS);
       return;
     } catch (e) {
+      backendTtsDisabledUntilMs = Date.now() + BACKEND_TTS_FAIL_COOLDOWN_MS;
       console.warn('[referenceSpeech] Backend TTS failed, using device TTS', e);
     }
   }
@@ -56,7 +76,7 @@ async function speakEnglishWithBackendMode(
   Speech.speak(text, {
     language: 'en-US',
     rate: deviceRate,
-    pitch: 0.65,
+    pitch: 0.77,
   });
 }
 

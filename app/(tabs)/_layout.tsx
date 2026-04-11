@@ -2,6 +2,9 @@ import { Ionicons } from '@expo/vector-icons';
 import { Tabs } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import type { UiKey } from '@/src/lib/i18n/uiCatalog';
+import { tUi } from '@/src/lib/i18n/resolveUi';
+import { useLanguageStore } from '@/src/store/language-store';
 import { theme } from '@/src/theme/pronunciationTheme';
 
 const TAB_BAR_CONTENT_HEIGHT = 54;
@@ -9,6 +12,8 @@ const TAB_BAR_CONTENT_HEIGHT = 54;
 export default function TabsLayout() {
   const insets = useSafeAreaInsets();
   const tabBarBottomInset = insets.bottom;
+  const supportLanguage = useLanguageStore((s) => s.supportLanguage);
+  const t = (key: UiKey) => tUi(supportLanguage, key);
 
   return (
     <Tabs
@@ -46,7 +51,7 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="calendar"
         options={{
-          title: 'Calendar',
+          title: t('navigation.calendar'),
           tabBarIcon: ({ color, size }) => <Ionicons name="calendar-outline" size={size} color={color} />,
         }}
       />

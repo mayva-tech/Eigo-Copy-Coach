@@ -6,9 +6,14 @@ import PrimaryButton from '@/src/components/ui/PrimaryButton';
 import ScreenContainer from '@/src/components/ui/ScreenContainer';
 import SectionLabel from '@/src/components/ui/SectionLabel';
 import SecondaryButton from '@/src/components/ui/SecondaryButton';
+import { LESSON_TOEIC_ID } from '@/src/services/content/lessonRepository';
 import { loadReviewQueue } from '@/src/services/storage/practiceStorage';
 import { usePracticeStore } from '@/src/store/usePracticeStore';
 import { theme, typography } from '@/src/theme/pronunciationTheme';
+
+function practiceLessonIdForReviewWord(wordId: string): string {
+  return wordId.startsWith('toeic-') ? LESSON_TOEIC_ID : 'lesson-01';
+}
 
 export default function ReviewScreen() {
   const reviewQueue = usePracticeStore((state) => state.reviewQueue);
@@ -48,7 +53,12 @@ export default function ReviewScreen() {
               <Pressable
                 key={item.id}
                 style={({ pressed }) => [styles.row, pressed && styles.rowPressed]}
-                onPress={() => router.push(`/practice/lesson-01`)}
+                onPress={() => {
+                  const lid = practiceLessonIdForReviewWord(item.wordId);
+                  router.push(`/practice/${lid}?wordId=${encodeURIComponent(item.wordId)}`);
+                }}
+                accessibilityRole="button"
+                accessibilityLabel={`Practice ${item.word}`}
               >
                 <View style={styles.dot} />
                 <View style={styles.rowBody}>

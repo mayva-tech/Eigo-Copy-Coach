@@ -5,6 +5,8 @@ export const ROUTES = {
   HOME: '/(tabs)' as Href,
   ONBOARDING: '/onboarding',
   PRACTICE: '/practice',
+  /** Pronunciation practice with headwords added from TOEIC vocab. */
+  PRACTICE_TOEIC: '/practice/lesson-toeic' as Href,
   /** Saved weak words — same as History tab. */
   REVIEW: '/(tabs)/history',
   SESSION_COMPLETE: '/session-complete',

@@ -13,5 +13,5 @@ export function partOfSpeechLabelEnJa(pos: string): string {
 }
 
 export function formatPartOfSpeechLine(posList: string[]): string {
-  return posList.map(partOfSpeechLabelEnJa).join(' / ');
+  return posList.map(partOfSpeechLabelEnJa).join('/');
 }

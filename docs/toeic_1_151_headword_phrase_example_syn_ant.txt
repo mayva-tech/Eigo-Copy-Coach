@@ -1,0 +1,908 @@
+TOEIC 1-151 Headwords + 3 Phrases + 1 Example + 3 Synonyms + 3 Antonyms
+Source: src/data/toeicWords.ts + src/data/toeicAntonyms.ts
+
+[1] preserve
+example: We must preserve the environment.
+phrases: preserve the environment | preserve history | preserve data
+synonyms: protect | maintain | conserve
+antonyms: destroy | neglect | waste
+
+[2] promote
+example: They promote the product online.
+phrases: promote a product | promote teamwork | get promoted
+synonyms: advertise | advance | boost
+antonyms: demote | hinder | discourage
+
+[3] respective
+example: They returned to their respective offices.
+phrases: respective roles | respective responsibilities | their respective fields
+synonyms: individual | separate | corresponding
+antonyms: collective | joint | shared
+
+[4] proceed
+example: Please proceed with the presentation.
+phrases: proceed with caution | proceed to checkout | proceed as planned
+synonyms: continue | advance | go ahead
+antonyms: halt | stop | retreat
+
+[5] imperative
+example: It is imperative that we file on time.
+phrases: imperative need | moral imperative | it is imperative that
+synonyms: essential | crucial | vital
+antonyms: optional | trivial | minor
+
+[6] beverage
+example: Would you like a hot beverage?
+phrases: order a beverage | serve beverages | alcoholic beverage
+synonyms: drink | refreshment | liquid
+antonyms: abstain | fast | dehydrate
+
+[7] inventory
+example: We need to conduct a full inventory.
+phrases: conduct an inventory | maintain inventory | inventory check
+synonyms: stock | stocklist | catalogue
+antonyms: shortage | scarcity | lack
+
+[8] eligible
+example: Are you eligible for the promotion?
+phrases: eligible for a position | eligible to apply | eligible candidate
+synonyms: qualified | suitable | entitled
+antonyms: ineligible | unqualified | disqualified
+
+[9] equip
+example: We need to equip the team with better tools.
+phrases: equip with tools | equip a team | well-equipped
+synonyms: supply | furnish | provide
+antonyms: strip | deprive | divest
+
+[10] inform
+example: Please inform all staff of the schedule change.
+phrases: inform someone of | keep informed | inform in advance
+synonyms: notify | tell | advise
+antonyms: conceal | mislead | withhold
+
+[11] banquet
+example: The annual awards banquet is on Friday.
+phrases: attend a banquet | host a banquet | banquet hall
+synonyms: feast | formal dinner | gala
+antonyms: snack | skip | ration
+
+[12] commission
+example: She earns a 12% sales commission.
+phrases: sales commission | commission fee | on commission
+synonyms: fee | payment | authorize
+antonyms: revoke | cancel | waive
+
+[13] portable
+example: A portable charger is essential for travel.
+phrases: portable device | portable charger | portable speaker
+synonyms: lightweight | mobile | handheld
+antonyms: fixed | stationary | immobile
+
+[14] presence
+example: Your presence is required at the board meeting.
+phrases: in someone's presence | make your presence known | online presence
+synonyms: attendance | existence | appearance
+antonyms: absence | lack | void
+
+[15] launch
+example: The product launch exceeded all expectations.
+phrases: product launch | launch a campaign | launch date
+synonyms: introduction | release | start
+antonyms: cancel | abort | retire
+
+[16] executive
+example: She joined the company as a top executive.
+phrases: executive decision | executive board | chief executive
+synonyms: manager | director | senior officer
+antonyms: subordinate | clerk | junior
+
+[17] resume
+example: Please email your resume before the interview.
+phrases: submit a resume | resume operations | resume work
+synonyms: CV | curriculum vitae | continue
+antonyms: terminate | pause | gap
+
+[18] cover
+example: The report covers all key financial metrics.
+phrases: cover a topic | cover expenses | cover letter
+synonyms: lid | top | protect
+antonyms: expose | uncover | reveal
+
+[19] associate
+example: I associate this brand with quality.
+phrases: associate with | business associate | associate member
+synonyms: colleague | partner | connect
+antonyms: sever | separate | split
+
+[20] direct
+example: Please send it direct to the client.
+phrases: direct contact | direct route | direct someone
+synonyms: straight | manage | guide
+antonyms: misdirect | confuse | divert
+
+[21] grant
+example: She received a research grant.
+phrases: grant permission | grant a request | research grant
+synonyms: award | allowance | give
+antonyms: deny | refuse | reject
+
+[22] reserve
+example: We keep a cash reserve for emergencies.
+phrases: reserve a seat | reserve a room | in reserve
+synonyms: book | set aside | supply
+antonyms: spend | deplete | release
+
+[23] withdraw
+example: I need to withdraw cash from the ATM.
+phrases: withdraw money | withdraw a statement | withdraw from
+synonyms: remove | take out | pull out
+antonyms: deposit | commit | advance
+
+[24] versatile
+example: She is a versatile employee who can handle many tasks.
+phrases: versatile tool | versatile performer | versatile skill set
+synonyms: adaptable | flexible | multi-skilled
+antonyms: limited | rigid | specialized
+
+[25] contribute
+example: Everyone is expected to contribute to the project.
+phrases: contribute to | contribute ideas | make a contribution
+synonyms: give | donate | add
+antonyms: withhold | detract | take
+
+[26] negotiate
+example: We need to negotiate a better contract.
+phrases: negotiate a deal | negotiate terms | negotiate a salary
+synonyms: bargain | discuss | mediate
+antonyms: impose | dictate | refuse
+
+[27] accomplish
+example: We accomplished our sales target this quarter.
+phrases: accomplish a goal | mission accomplished | accomplish tasks
+synonyms: achieve | complete | fulfill
+antonyms: fail | abandon | neglect
+
+[28] proposal
+example: They submitted a detailed business proposal.
+phrases: business proposal | submit a proposal | proposal review
+synonyms: plan | suggestion | offer
+antonyms: rejection | refusal | denial
+
+[29] accommodate
+example: The conference center can accommodate 300 guests.
+phrases: accommodate guests | accommodate a request | accommodate changes
+synonyms: house | adjust | adapt
+antonyms: reject | exclude | refuse
+
+[30] collaborate
+example: Our teams collaborate across time zones.
+phrases: collaborate on | collaborate with | close collaboration
+synonyms: cooperate | partner | team up
+antonyms: compete | oppose | sabotage
+
+[31] allocate
+example: We allocated 30% of the budget to marketing.
+phrases: allocate budget | allocate resources | allocate time
+synonyms: assign | distribute | allot
+antonyms: withhold | hoard | centralize
+
+[32] mandatory
+example: Attendance at the safety briefing is mandatory.
+phrases: mandatory training | mandatory attendance | mandatory requirement
+synonyms: compulsory | required | obligatory
+antonyms: optional | voluntary | discretionary
+
+[33] reimburse
+example: The company will reimburse all travel expenses.
+phrases: reimburse expenses | fully reimbursed | reimburse travel costs
+synonyms: repay | refund | compensate
+antonyms: charge | bill | penalize
+
+[34] regulations
+example: All employees must comply with health and safety regulations.
+phrases: comply with regulations | safety regulations | government regulations
+synonyms: rules | laws | guidelines
+antonyms: deregulation | chaos | exemption
+
+[35] effective
+example: The new procedure is more effective.
+phrases: highly effective | effective immediately | cost-effective
+synonyms: successful | efficient | productive
+antonyms: ineffective | useless | futile
+
+[36] acknowledge
+example: Please acknowledge receipt of this email.
+phrases: acknowledge receipt | acknowledge a mistake | widely acknowledged
+synonyms: confirm | recognize | admit
+antonyms: deny | ignore | dispute
+
+[37] available
+example: Is the conference room available at 3pm?
+phrases: readily available | available position | available for comment
+synonyms: accessible | free | obtainable
+antonyms: unavailable | occupied | inaccessible
+
+[38] acquire
+example: The company acquired a smaller startup.
+phrases: acquire skills | acquire a company | merger and acquisition
+synonyms: obtain | gain | purchase
+antonyms: lose | forfeit | surrender
+
+[39] retain
+example: The company wants to retain its best talent.
+phrases: retain employees | retain information | staff retention
+synonyms: keep | hold | maintain
+antonyms: discard | release | lose
+
+[40] distribute
+example: Please distribute the handouts to all attendees.
+phrases: distribute materials | distribute profits | distribution network
+synonyms: hand out | deliver | spread
+antonyms: hoard | centralize | collect
+
+[41] revenue
+example: Annual revenue increased by 18% this year.
+phrases: annual revenue | generate revenue | revenue growth
+synonyms: income | earnings | proceeds
+antonyms: expense | loss | cost
+
+[42] conduct
+example: His professional conduct impressed the panel.
+phrases: code of conduct | conduct a meeting | conduct research
+synonyms: behavior | manage | run
+antonyms: mismanage | disrupt | neglect
+
+[43] maintain
+example: We must maintain high quality standards.
+phrases: maintain standards | maintain equipment | maintain records
+synonyms: keep | preserve | sustain
+antonyms: neglect | abandon | damage
+
+[44] approve
+example: The board approved the annual budget.
+phrases: approve a request | board approval | pending approval
+synonyms: authorize | sanction | endorse
+antonyms: reject | deny | veto
+
+[45] priority
+example: Customer satisfaction is our top priority.
+phrases: top priority | set priorities | priority list
+synonyms: main concern | precedence | urgency
+antonyms: afterthought | triviality | low priority
+
+[46] prospective
+example: We met with several prospective clients this week.
+phrases: prospective client | prospective employee | prospective buyer
+synonyms: potential | future | likely
+antonyms: former | past | retrospective
+
+[47] substantial
+example: There was a substantial increase in profits.
+phrases: substantial increase | substantial evidence | substantial investment
+synonyms: significant | considerable | major
+antonyms: insignificant | minimal | trivial
+
+[48] survey
+example: Please complete our customer satisfaction survey.
+phrases: conduct a survey | customer survey | survey results
+synonyms: poll | study | questionnaire
+antonyms: ignore | guess | assume
+
+[49] strategy
+example: What is the company's long-term strategy?
+phrases: marketing strategy | exit strategy | long-term strategy
+synonyms: plan | approach | method
+antonyms: improvisation | chaos | reaction
+
+[50] evaluate
+example: We need to evaluate the results carefully.
+phrases: evaluate performance | evaluate options | evaluate candidates
+synonyms: assess | appraise | judge
+antonyms: ignore | neglect | guess
+
+[51] implement
+example: We will implement the new system next quarter.
+phrases: implement a plan | implement changes | implement a policy
+synonyms: execute | carry out | apply
+antonyms: cancel | abandon | shelve
+
+[52] demonstrate
+example: She demonstrated the software features.
+phrases: demonstrate skills | product demonstration | demonstrate commitment
+synonyms: show | prove | display
+antonyms: conceal | obscure | hide
+
+[53] complimentary
+example: Breakfast is complimentary for all hotel guests.
+phrases: complimentary breakfast | complimentary ticket | complimentary service
+synonyms: free | gratis | flattering
+antonyms: critical | disparaging | paid
+
+[54] reference
+example: Please provide two professional references.
+phrases: provide a reference | reference letter | frame of reference
+synonyms: citation | testimonial | mention
+antonyms: omission | silence | avoidance
+
+[55] personnel
+example: All personnel must wear ID badges.
+phrases: personnel department | key personnel | military personnel
+synonyms: staff | employees | workforce
+antonyms: automation | machinery | robots
+
+[56] initiative
+example: Take initiative — don't wait to be asked.
+phrases: take initiative | new initiative | strategic initiative
+synonyms: drive | enterprise | plan
+antonyms: passivity | inertia | apathy
+
+[57] submit
+example: Please submit your report by end of day Friday.
+phrases: submit a report | submit an application | submission deadline
+synonyms: hand in | file | present
+antonyms: withdraw | retract | withhold
+
+[58] projection
+example: The sales projection for Q3 looks strong.
+phrases: sales projection | financial projection | earnings projection
+synonyms: forecast | estimate | prediction
+antonyms: actual | result | fact
+
+[59] property
+example: The company owns commercial property downtown.
+phrases: commercial property | intellectual property | property damage
+synonyms: building | real estate | asset
+antonyms: liability | debt | intangible
+
+[60] training
+example: New employees undergo two weeks of training.
+phrases: staff training | training program | on-the-job training
+synonyms: instruction | coaching | development
+antonyms: ignorance | neglect | inexperience
+
+[61] warranty
+example: The laptop comes with a two-year warranty.
+phrases: product warranty | under warranty | warranty period
+synonyms: guarantee | assurance | pledge
+antonyms: disclaimer | void | exclusion
+
+[62] recruit
+example: We are actively recruiting for three positions.
+phrases: recruit staff | new recruit | recruiting process
+synonyms: hire | enlist | sign up
+antonyms: dismiss | fire | lay off
+
+[63] anticipate
+example: We anticipate strong demand in Q4.
+phrases: anticipate demand | as anticipated | anticipate changes
+synonyms: expect | foresee | predict
+antonyms: ignore | overlook | disregard
+
+[64] previous
+example: Please review the previous quarter's results.
+phrases: previous experience | previous quarter | previous meeting
+synonyms: prior | earlier | past
+antonyms: subsequent | following | next
+
+[65] liability
+example: The company accepts no liability for the damage.
+phrases: legal liability | limited liability | product liability
+synonyms: responsibility | obligation | risk
+antonyms: asset | advantage | strength
+
+[66] resolution
+example: We passed a resolution to freeze hiring.
+phrases: conflict resolution | pass a resolution | New Year's resolution
+synonyms: decision | solution | determination
+antonyms: deadlock | stalemate | problem
+
+[67] sufficient
+example: Do we have sufficient funds to proceed?
+phrases: sufficient funds | sufficient time | sufficient evidence
+synonyms: enough | adequate | ample
+antonyms: insufficient | inadequate | lacking
+
+[68] consecutive
+example: Profits rose for five consecutive quarters.
+phrases: consecutive days | consecutive quarters | consecutive wins
+synonyms: successive | sequential | continuous
+antonyms: sporadic | interrupted | random
+
+[69] throughout
+example: The new policy applies throughout the organization.
+phrases: throughout the year | throughout the company | throughout the process
+synonyms: all through | everywhere | across
+antonyms: partially | locally | briefly
+
+[70] invoice
+example: Please send the invoice to our accounts department.
+phrases: send an invoice | invoice number | outstanding invoice
+synonyms: bill | statement | receipt
+antonyms: credit | refund | payment
+
+[71] recommend
+example: I highly recommend the afternoon workshop.
+phrases: highly recommended | recommend a product | letter of recommendation
+synonyms: suggest | endorse | advise
+antonyms: discourage | oppose | warn against
+
+[72] quarter
+example: Sales rose 12% in the third quarter.
+phrases: third quarter | quarterly report | Q3 results
+synonyms: three months | term | period
+antonyms: year | whole | entirety
+
+[73] efficient
+example: The new system is far more efficient.
+phrases: fuel-efficient | efficient process | efficient use of resources
+synonyms: productive | effective | streamlined
+antonyms: inefficient | wasteful | slow
+
+[74] department
+example: She heads the marketing department.
+phrases: HR department | sales department | department head
+synonyms: division | section | unit
+antonyms: whole firm | merger | unity
+
+[75] arrange
+example: Can you arrange a meeting for Tuesday?
+phrases: arrange a meeting | arrange transportation | arrange in order
+synonyms: organize | plan | set up
+antonyms: disorder | cancel | confuse
+
+[76] headquarters
+example: The company's headquarters is in Singapore.
+phrases: company headquarters | regional headquarters | global headquarters
+synonyms: main office | HQ | central office
+antonyms: branch | satellite | field office
+
+[77] delegate
+example: A good manager knows how to delegate.
+phrases: delegate responsibility | conference delegate | delegate authority
+synonyms: assign | entrust | representative
+antonyms: centralize | micromanage | retain
+
+[78] complaint
+example: She filed a formal complaint with HR.
+phrases: file a complaint | customer complaint | lodge a complaint
+synonyms: grievance | objection | protest
+antonyms: praise | compliment | approval
+
+[79] reimbursement
+example: Submit all receipts for reimbursement.
+phrases: expense reimbursement | travel reimbursement | full reimbursement
+synonyms: repayment | refund | compensation
+antonyms: charge | penalty | deduction
+
+[80] register
+example: Please register for the seminar by Friday.
+phrases: register for an event | voter registration | cash register
+synonyms: sign up | enroll | record
+antonyms: cancel | unregister | deregister
+
+[81] outstanding
+example: She produced outstanding results this year.
+phrases: outstanding performance | outstanding balance | outstanding invoice
+synonyms: excellent | unpaid | exceptional
+antonyms: mediocre | poor | paid
+
+[82] productivity
+example: Remote working tools improved team productivity.
+phrases: increase productivity | productivity tools | productivity metrics
+synonyms: efficiency | output | performance
+antonyms: inefficiency | idleness | waste
+
+[83] approval
+example: The project needs board approval before it starts.
+phrases: board approval | pending approval | get approval
+synonyms: authorization | consent | endorsement
+antonyms: rejection | denial | disapproval
+
+[84] legitimate
+example: Is this a legitimate business operation?
+phrases: legitimate business | legitimate concern | legitimate claim
+synonyms: legal | valid | genuine
+antonyms: illegitimate | fake | fraudulent
+
+[85] candidate
+example: She is a strong candidate for the director role.
+phrases: job candidate | qualified candidate | ideal candidate
+synonyms: applicant | contender | nominee
+antonyms: employer | hirer | recruiter
+
+[86] procedure
+example: Follow the standard procedure for filing claims.
+phrases: standard procedure | follow a procedure | safety procedure
+synonyms: process | method | protocol
+antonyms: improvisation | ad hoc | chaos
+
+[87] communicate
+example: It is vital to communicate clearly with your team.
+phrases: communicate clearly | communicate with clients | internal communication
+synonyms: convey | share | express
+antonyms: withhold | silence | conceal
+
+[88] flexible
+example: We offer flexible working hours to all staff.
+phrases: flexible hours | flexible schedule | flexible approach
+synonyms: adaptable | adjustable | versatile
+antonyms: inflexible | rigid | strict
+
+[89] transaction
+example: The transaction was completed successfully.
+phrases: financial transaction | complete a transaction | transaction record
+synonyms: deal | exchange | trade
+antonyms: stagnation | inactivity | delay
+
+[90] correspond
+example: We correspond with overseas clients by email.
+phrases: correspond with | correspond to | business correspondence
+synonyms: communicate | match | write
+antonyms: differ | contradict | clash
+
+[91] resign
+example: She resigned from her role last Friday.
+phrases: resign from a position | letter of resignation | tender one's resignation
+synonyms: quit | step down | leave
+antonyms: hire | appoint | stay
+
+[92] relocate
+example: The head office will relocate to Osaka next year.
+phrases: relocate to another city | office relocation | willing to relocate
+synonyms: move | transfer | migrate
+antonyms: remain | stay put | settle
+
+[93] proficient
+example: She is proficient in English and Mandarin.
+phrases: proficient in English | highly proficient | proficiency test
+synonyms: skilled | competent | expert
+antonyms: incompetent | novice | unskilled
+
+[94] credential
+example: Please submit your academic credentials.
+phrases: academic credentials | professional credentials | verify credentials
+synonyms: qualification | certificate | diploma
+antonyms: disqualification | fraud | fake
+
+[95] overview
+example: Please give a brief overview of the project.
+phrases: project overview | general overview | brief overview
+synonyms: summary | outline | synopsis
+antonyms: detail | drill-down | specifics
+
+[96] analyze
+example: We need to analyze the sales data carefully.
+phrases: analyze data | analyze results | data analysis
+synonyms: examine | assess | evaluate
+antonyms: synthesize | ignore | guess
+
+[97] require
+example: This position requires five years of experience.
+phrases: require approval | require documentation | as required
+synonyms: need | demand | necessitate
+antonyms: exempt | waive | excuse
+
+[98] responsible
+example: Who is responsible for this project?
+phrases: responsible for | hold responsible | jointly responsible
+synonyms: accountable | liable | dependable
+antonyms: irresponsible | unreliable | careless
+
+[99] establish
+example: The company was established in 1990.
+phrases: establish a company | establish contact | establish guidelines
+synonyms: found | set up | create
+antonyms: dismantle | abolish | close
+
+[100] agenda
+example: The agenda for today's meeting has been circulated.
+phrases: meeting agenda | set the agenda | agenda item
+synonyms: schedule | program | plan
+antonyms: improvisation | informality | open floor
+
+[101] request
+example: Please submit your request by Friday.
+phrases: submit a request | upon request | request information
+synonyms: ask | apply for | require
+antonyms:  |  | 
+
+[102] provide
+example: Please provide your contact details.
+phrases: provide information | provide support | provide feedback
+synonyms: supply | give | offer
+antonyms:  |  | 
+
+[103] receive
+example: You will receive a confirmation email shortly.
+phrases: receive a payment | receive feedback | receive an order
+synonyms: get | obtain | accept
+antonyms:  |  | 
+
+[104] increase
+example: There was a 10% increase in sales last quarter.
+phrases: price increase | increase productivity | significant increase
+synonyms: rise | growth | expand
+antonyms:  |  | 
+
+[105] decrease
+example: There was a sharp decrease in operating costs.
+phrases: sharp decrease | decrease in costs | decrease significantly
+synonyms: reduction | decline | drop
+antonyms:  |  | 
+
+[106] complete
+example: Please complete the form and return it by Monday.
+phrases: complete a task | complete the form | complete a project
+synonyms: finish | finalize | accomplish
+antonyms:  |  | 
+
+[107] contact
+example: Please contact us if you have any questions.
+phrases: contact information | point of contact | contact us
+synonyms: reach | touch | connection
+antonyms:  |  | 
+
+[108] attend
+example: All managers are expected to attend the meeting.
+phrases: attend a meeting | attend a conference | attend training
+synonyms: go to | be present | participate
+antonyms:  |  | 
+
+[109] prepare
+example: Please prepare the agenda for tomorrow's meeting.
+phrases: prepare for | prepare a report | well-prepared
+synonyms: get ready | arrange | make ready
+antonyms:  |  | 
+
+[110] apply
+example: Please apply online by the closing date.
+phrases: apply for a job | apply online | apply for a loan
+synonyms: submit | use | request
+antonyms:  |  | 
+
+[111] consider
+example: Please consider our proposal carefully.
+phrases: consider carefully | under consideration | consider an option
+synonyms: think about | weigh | contemplate
+antonyms:  |  | 
+
+[112] improve
+example: We are working to improve customer service.
+phrases: improve performance | room for improvement | improve efficiency
+synonyms: enhance | boost | upgrade
+antonyms:  |  | 
+
+[113] offer
+example: We received a very competitive job offer.
+phrases: job offer | offer a discount | special offer
+synonyms: proposal | present | provide
+antonyms:  |  | 
+
+[114] ensure
+example: Please ensure all documents are signed before submission.
+phrases: ensure accuracy | ensure compliance | ensure quality
+synonyms: make sure | guarantee | secure
+antonyms:  |  | 
+
+[115] manage
+example: She manages a team of twelve people.
+phrases: manage a team | manage resources | project manager
+synonyms: oversee | handle | run
+antonyms:  |  | 
+
+[116] include
+example: The price includes tax and shipping.
+phrases: include in | included in the price | including tax
+synonyms: contain | cover | incorporate
+antonyms:  |  | 
+
+[117] expect
+example: We expect the project to be completed by March.
+phrases: expect to | as expected | expected completion
+synonyms: anticipate | require | predict
+antonyms:  |  | 
+
+[118] result
+example: The new strategy produced excellent results.
+phrases: as a result | positive results | result in
+synonyms: outcome | consequence | effect
+antonyms:  |  | 
+
+[119] annual
+example: The annual report will be published next month.
+phrases: annual report | annual meeting | annual review
+synonyms: yearly | once-a-year | per annum
+antonyms:  |  | 
+
+[120] current
+example: Please update your current contact information.
+phrases: current status | current position | current situation
+synonyms: present | existing | today's
+antonyms:  |  | 
+
+[121] recent
+example: Please refer to the most recent version of the document.
+phrases: most recent | recent changes | recent update
+synonyms: latest | new | fresh
+antonyms:  |  | 
+
+[122] necessary
+example: Please make any necessary changes before submitting.
+phrases: if necessary | necessary steps | necessary documents
+synonyms: essential | required | needed
+antonyms:  |  | 
+
+[123] possible
+example: Please respond as soon as possible.
+phrases: as soon as possible | if possible | make it possible
+synonyms: feasible | achievable | potential
+antonyms:  |  | 
+
+[124] standard
+example: Our products meet the highest industry standards.
+phrases: high standard | standard procedure | industry standard
+synonyms: norm | level | regular
+antonyms:  |  | 
+
+[125] limited
+example: Seating is limited — please register early.
+phrases: limited time | limited availability | limited offer
+synonyms: restricted | finite | scarce
+antonyms:  |  | 
+
+[126] special
+example: We are offering a special discount this week.
+phrases: special offer | special event | special edition
+synonyms: unique | exceptional | specific
+antonyms:  |  | 
+
+[127] total
+example: The total cost of the project was $50,000.
+phrases: total cost | total amount | grand total
+synonyms: complete | entire | sum
+antonyms:  |  | 
+
+[128] local
+example: We support local suppliers where possible.
+phrases: local office | local community | local supplier
+synonyms: nearby | regional | area
+antonyms:  |  | 
+
+[129] free
+example: Admission is free for members.
+phrases: free of charge | feel free | toll-free
+synonyms: complimentary | no-cost | unrestricted
+antonyms:  |  | 
+
+[130] however
+example: Sales were strong; however, costs also increased.
+phrases: however you look at it | however possible | this is however
+synonyms: but | nevertheless | yet
+antonyms:  |  | 
+
+[131] therefore
+example: The budget was exceeded; therefore, approval is needed.
+phrases: therefore we | and therefore | it is therefore
+synonyms: so | consequently | thus
+antonyms:  |  | 
+
+[132] immediately
+example: Please respond immediately if you have any concerns.
+phrases: effective immediately | respond immediately | immediately after
+synonyms: at once | right away | instantly
+antonyms:  |  | 
+
+[133] recently
+example: The company recently announced a new product line.
+phrases: most recently | recently launched | recently hired
+synonyms: lately | just | not long ago
+antonyms:  |  | 
+
+[134] currently
+example: We are currently reviewing all applications.
+phrases: currently available | currently seeking | as currently stated
+synonyms: presently | at present | now
+antonyms:  |  | 
+
+[135] approximately
+example: The project will take approximately three months.
+phrases: approximately two weeks | takes approximately | approximately equal
+synonyms: about | roughly | around
+antonyms:  |  | 
+
+[136] typically
+example: Deliveries typically arrive within three business days.
+phrases: typically takes | typically requires | as typically done
+synonyms: usually | normally | generally
+antonyms:  |  | 
+
+[137] usually
+example: We usually respond within 24 hours.
+phrases: usually takes | as usual | usually available
+synonyms: normally | generally | typically
+antonyms:  |  | 
+
+[138] furthermore
+example: The report was late; furthermore, it contained several errors.
+phrases: furthermore we | and furthermore | furthermore it
+synonyms: moreover | additionally | besides
+antonyms:  |  | 
+
+[139] additionally
+example: Additionally, all participants will receive a certificate.
+phrases: additionally you may | and additionally | additionally required
+synonyms: also | moreover | furthermore
+antonyms:  |  | 
+
+[140] customer
+example: Customer satisfaction is our highest priority.
+phrases: customer service | customer satisfaction | loyal customer
+synonyms: client | buyer | consumer
+antonyms:  |  | 
+
+[141] service
+example: We pride ourselves on excellent customer service.
+phrases: customer service | service charge | in service
+synonyms: assistance | support | maintain
+antonyms:  |  | 
+
+[142] report
+example: The quarterly report is due on Friday.
+phrases: annual report | submit a report | progress report
+synonyms: account | document | inform
+antonyms:  |  | 
+
+[143] order
+example: We placed an order for 500 units last week.
+phrases: place an order | order form | in order to
+synonyms: purchase | request | arrangement
+antonyms:  |  | 
+
+[144] product
+example: We launched three new products this year.
+phrases: product launch | product line | new product
+synonyms: item | good | merchandise
+antonyms:  |  | 
+
+[145] project
+example: The project is on schedule and under budget.
+phrases: manage a project | project deadline | project manager
+synonyms: plan | task | assignment
+antonyms:  |  | 
+
+[146] staff
+example: All staff must complete the training by Friday.
+phrases: full-time staff | staff meeting | senior staff
+synonyms: employees | team | workforce
+antonyms:  |  | 
+
+[147] client
+example: We have over 200 corporate clients worldwide.
+phrases: key client | client meeting | potential client
+synonyms: customer | account | patron
+antonyms:  |  | 
+
+[148] payment
+example: Payment is due within 30 days of invoice.
+phrases: make a payment | payment due | payment method
+synonyms: settlement | installment | fee
+antonyms:  |  | 
+
+[149] price
+example: The price includes delivery and installation.
+phrases: asking price | price list | competitive price
+synonyms: cost | charge | fee
+antonyms:  |  | 
+
+[150] account
+example: Please send the invoice to the accounts department.
+phrases: bank account | account for | take into account
+synonyms: record | client | explain
+antonyms:  |  | 
+
+[151] meeting
+example: The budget meeting is scheduled for Tuesday.
+phrases: attend a meeting | board meeting | schedule a meeting
+synonyms: conference | assembly | session
+antonyms:  |  | 

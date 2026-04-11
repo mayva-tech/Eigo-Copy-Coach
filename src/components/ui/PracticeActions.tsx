@@ -1,4 +1,4 @@
-import { StyleSheet, View } from 'react-native';
+import { Platform, StyleSheet, View } from 'react-native';
 
 import PrimaryButton from './PrimaryButton';
 import SecondaryButton from './SecondaryButton';
@@ -23,8 +23,22 @@ export default function PracticeActions({
 }: PracticeActionsProps) {
   return (
     <View style={styles.row}>
-      <SecondaryButton label={skipLabel} labelSuffixJa={skipLabelJa} onPress={onSkip} flex={1} />
-      <PrimaryButton label={tryAgainLabel} labelSuffixJa={tryAgainLabelJa} onPress={onTryAgain} flex={1} />
+      <SecondaryButton
+        label={skipLabel}
+        labelSuffixJa={skipLabelJa}
+        labelStyle={styles.actionLabelEn}
+        labelJaStyle={styles.actionLabelJa}
+        onPress={onSkip}
+        flex={1}
+      />
+      <PrimaryButton
+        label={tryAgainLabel}
+        labelSuffixJa={tryAgainLabelJa}
+        labelStyle={styles.actionLabelEn}
+        labelJaStyle={styles.actionLabelJa}
+        onPress={onTryAgain}
+        flex={1}
+      />
     </View>
   );
 }
@@ -34,5 +48,24 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: theme.space.xs,
     marginTop: theme.space.sm,
+  },
+  actionLabelEn: {
+    fontFamily: Platform.select({
+      ios: 'System',
+      android: 'sans-serif',
+      default: 'sans-serif',
+    }),
+    fontSize: 15,
+    fontWeight: '700',
+  },
+  actionLabelJa: {
+    fontFamily: Platform.select({
+      ios: 'System',
+      android: 'sans-serif',
+      default: 'sans-serif',
+    }),
+    fontSize: 15,
+    fontWeight: '400',
+    color: theme.colors.text,
   },
 });

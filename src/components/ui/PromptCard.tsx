@@ -1,21 +1,52 @@
 import { Ionicons } from '@expo/vector-icons';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { useRef } from 'react';
+import { ActivityIndicator, Animated, Pressable, StyleSheet, Text, View } from 'react-native';
 
+import RecordButton from './RecordButton';
 import { theme, typography } from '@/src/theme/pronunciationTheme';
 
 type PromptCardProps = {
   word: string;
   meaningJa?: string;
   onListen: () => void;
+  isRecording: boolean;
+  onRecordPress: () => void;
+  recordDisabled?: boolean;
+  hasRecording?: boolean;
+  onReplayRecording?: () => void;
+  /** After replay + TTS comparison (practice screen). */
+  clarityScore?: number | null;
+  clarityLabelJa?: string | null;
+  clarityBusy?: boolean;
 };
 
-export default function PromptCard({ word, meaningJa, onListen }: PromptCardProps) {
+export default function PromptCard({
+  word,
+  meaningJa,
+  onListen,
+  isRecording,
+  onRecordPress,
+  recordDisabled,
+  hasRecording,
+  onReplayRecording,
+  clarityScore,
+  clarityLabelJa,
+  clarityBusy,
+}: PromptCardProps) {
+  const replayPop = useRef(new Animated.Value(1)).current;
+
+  const handleReplay = () => {
+    if (onReplayRecording) {
+      Animated.sequence([
+        Animated.timing(replayPop, { toValue: 1.14, duration: 110, useNativeDriver: true }),
+        Animated.timing(replayPop, { toValue: 1, duration: 140, useNativeDriver: true }),
+      ]).start();
+      onReplayRecording();
+    }
+  };
+
   return (
     <View style={styles.card}>
-      <Text style={styles.label}>
-        SAY THIS WORD
-        <Text style={styles.labelJa}> このたんごをいう</Text>
-      </Text>
       <Text
         style={typography.wordHero}
         numberOfLines={1}
@@ -26,19 +57,73 @@ export default function PromptCard({ word, meaningJa, onListen }: PromptCardProp
       </Text>
       {meaningJa ? <Text style={styles.meaning}>{meaningJa}</Text> : null}
 
-      <Pressable
-        onPress={onListen}
-        style={({ pressed }) => [styles.playOuter, pressed && styles.playPressed]}
-        accessibilityRole="button"
-        accessibilityLabel="Listen first"
-      >
-        <View style={styles.playInner}>
-          <Ionicons name="play" size={22} color={theme.colors.darkCard} style={styles.playIcon} />
-        </View>
-      </Pressable>
+      <View style={styles.iconRow}>
+        <Pressable
+          onPress={onListen}
+          style={({ pressed }) => [pressed && styles.playPressed]}
+          accessibilityRole="button"
+          accessibilityLabel="Listen first"
+        >
+          <View style={styles.playInner}>
+            <Ionicons name="play" size={22} color={theme.colors.darkCard} style={styles.playIcon} />
+          </View>
+        </Pressable>
+
+        <RecordButton
+          compact
+          isRecording={isRecording}
+          onPress={onRecordPress}
+          disabled={recordDisabled}
+        />
+
+        {hasRecording && onReplayRecording ? (
+          <Animated.View style={{ transform: [{ scale: replayPop }] }}>
+            <Pressable
+              onPress={handleReplay}
+              style={({ pressed }) => [styles.replayPill, pressed && styles.replayPressed]}
+              accessibilityRole="button"
+              accessibilityLabel="Play recording"
+            >
+              <Ionicons name="play" size={22} color={theme.colors.textSecondary} />
+            </Pressable>
+          </Animated.View>
+        ) : null}
+
+        {hasRecording ? (
+          <View style={styles.clarityBlock} accessibilityLabel="Clarity vs reference">
+            <Text style={styles.clarityEyebrow}>CLARITY</Text>
+            {clarityBusy ? (
+              <ActivityIndicator size="small" color={theme.colors.accentGold} style={styles.claritySpinner} />
+            ) : clarityScore != null ? (
+              <Text style={styles.clarityScoreText}>{Math.round(clarityScore)}%</Text>
+            ) : (
+              <Text style={styles.clarityDash}>—</Text>
+            )}
+            {clarityLabelJa ? (
+              <Text style={styles.claritySubJa} numberOfLines={2}>
+                {clarityLabelJa}
+              </Text>
+            ) : null}
+          </View>
+        ) : null}
+      </View>
+
       <Text style={styles.listenHint}>
         Listen first
         <Text style={styles.listenHintJa}> まずきく</Text>
+      </Text>
+      <Text style={styles.tapLabel}>
+        {isRecording ? (
+          <>
+            Tap to stop
+            <Text style={styles.tapLabelJa}> タップで録音停止</Text>
+          </>
+        ) : (
+          <>
+            Tap to speak
+            <Text style={styles.tapLabelJa}> タップしていう</Text>
+          </>
+        )}
       </Text>
     </View>
   );
@@ -52,27 +137,18 @@ const styles = StyleSheet.create({
     paddingVertical: theme.space.lg,
     alignItems: 'center',
   },
-  label: {
-    fontFamily: theme.fontDisplay,
-    fontSize: 10,
-    letterSpacing: 2.2,
-    color: theme.colors.darkCardMuted,
-    marginBottom: theme.space.sm,
-    textTransform: 'uppercase',
-  },
-  labelJa: {
-    fontSize: 11,
-    fontWeight: '600',
-    letterSpacing: 0,
-    textTransform: 'none',
-  },
   meaning: {
     fontSize: 13,
     color: theme.colors.darkCardMuted,
-    marginTop: -theme.space.xs,
+    marginTop: theme.space.md,
     marginBottom: theme.space.sm,
   },
-  playOuter: {
+  iconRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexWrap: 'wrap',
+    gap: theme.space.md,
     marginTop: theme.space.xs,
   },
   playPressed: {
@@ -90,8 +166,58 @@ const styles = StyleSheet.create({
   playIcon: {
     marginLeft: 3,
   },
+  replayPill: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    minWidth: 44,
+    minHeight: 44,
+    paddingHorizontal: 10,
+    borderRadius: theme.radius.pill,
+    backgroundColor: theme.colors.surfaceSoft,
+    borderWidth: 1,
+    borderColor: theme.colors.borderSubtle,
+  },
+  replayPressed: {
+    opacity: 0.8,
+  },
+  clarityBlock: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    minWidth: 72,
+    maxWidth: 104,
+    paddingHorizontal: 4,
+  },
+  clarityEyebrow: {
+    fontSize: 9,
+    fontWeight: '700',
+    letterSpacing: 1.2,
+    color: theme.colors.darkCardMuted,
+    marginBottom: 2,
+  },
+  clarityScoreText: {
+    fontFamily: theme.fontDisplay,
+    fontSize: 20,
+    fontWeight: '600',
+    color: theme.colors.accentGold,
+  },
+  clarityDash: {
+    fontFamily: theme.fontDisplay,
+    fontSize: 18,
+    color: theme.colors.darkCardMuted,
+  },
+  claritySpinner: {
+    marginVertical: 4,
+  },
+  claritySubJa: {
+    fontSize: 9,
+    fontWeight: '600',
+    color: theme.colors.darkCardMuted,
+    textAlign: 'center',
+    marginTop: 2,
+    lineHeight: 12,
+  },
   listenHint: {
-    marginTop: theme.space.xs,
+    marginTop: theme.space.sm,
     fontFamily: theme.fontDisplay,
     fontSize: 16,
     color: theme.colors.darkCardMuted,
@@ -100,5 +226,17 @@ const styles = StyleSheet.create({
     fontSize: 11,
     fontWeight: '600',
     letterSpacing: 0,
+  },
+  tapLabel: {
+    marginTop: theme.space.xs,
+    fontFamily: theme.fontDisplay,
+    fontSize: 13,
+    color: theme.colors.darkCardMuted,
+    textAlign: 'center',
+  },
+  tapLabelJa: {
+    fontSize: 11,
+    fontWeight: '600',
+    color: theme.colors.darkCardMuted,
   },
 });

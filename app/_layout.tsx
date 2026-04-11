@@ -7,10 +7,26 @@ import { LanguageHydrationGate } from '@/src/components/LanguageHydrationGate';
 import { ROUTES } from '@/src/constants/routes';
 import { useAppStore } from '@/src/store/useAppStore';
 import { usePracticeStore } from '@/src/store/usePracticeStore';
+import { useToeicPracticeStore } from '@/src/store/useToeicPracticeStore';
+import { useToeicWordStatsStore } from '@/src/store/useToeicWordStatsStore';
 
 function PracticeReviewQueueHydration() {
   useEffect(() => {
     void usePracticeStore.getState().hydrateReviewQueue();
+  }, []);
+  return null;
+}
+
+function ToeicPracticeListHydration() {
+  useEffect(() => {
+    void useToeicPracticeStore.getState().hydrateToeicPractice();
+  }, []);
+  return null;
+}
+
+function ToeicWordStatsHydration() {
+  useEffect(() => {
+    void useToeicWordStatsStore.getState().hydrateToeicWordStats();
   }, []);
   return null;
 }
@@ -21,6 +37,8 @@ export default function RootLayout() {
       <StatusBar style="dark" />
       <LanguageHydrationGate>
         <PracticeReviewQueueHydration />
+        <ToeicPracticeListHydration />
+        <ToeicWordStatsHydration />
         <RootNavigator />
       </LanguageHydrationGate>
     </SafeAreaProvider>

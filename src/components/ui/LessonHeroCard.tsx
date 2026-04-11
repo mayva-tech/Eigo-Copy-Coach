@@ -50,8 +50,8 @@ const styles = StyleSheet.create({
     backgroundColor: theme.colors.darkCard,
     borderRadius: theme.radius.xl,
     paddingHorizontal: theme.space.md,
-    paddingVertical: theme.space.lg,
-    gap: theme.space.sm,
+    paddingVertical: theme.space.sm,
+    gap: 6,
   },
   label: {
     fontFamily: theme.fontDisplay,
@@ -81,6 +81,6 @@ const styles = StyleSheet.create({
     color: theme.colors.darkCardMuted,
   },
   wave: {
-    paddingVertical: theme.space.sm,
+    paddingVertical: 4,
   },
 });

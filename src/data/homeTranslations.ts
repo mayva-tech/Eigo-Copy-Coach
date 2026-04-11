@@ -3,9 +3,9 @@
  */
 
 export const homeScreenJa = {
-  dailyPracticeEyebrow: 'まいにちのれんしゅう',
+  dailyPracticeEyebrow: '毎日の練習',
   focusAreasEyebrow: 'よくきになるところ',
-  nowPracticingEyebrow: 'いまやってる',
+  nowPracticingEyebrow: '今やってる',
   brandSubtitle: '英語コピーコーチ',
   statStreakCaption: 'れんぞくの日',
   statClarityCaption: 'はっきり度',
@@ -13,5 +13,5 @@ export const homeScreenJa = {
   continuePracticeJa: 'れんしゅうをつづける',
   toeicEyebrow: 'TOEIC のたいさく',
   toeicTitleJa: 'たんごとはつおん',
-  toeicSubtitleJa: '100語 · アクセントのコツ · 音声',
+  toeicSubtitleJa: '300語 · アクセントのコツ · 音声',
 } as const;

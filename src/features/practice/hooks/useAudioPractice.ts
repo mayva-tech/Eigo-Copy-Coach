@@ -1,5 +1,5 @@
-import { setAudioModeAsync, useAudioRecorderState } from 'expo-audio';
-import { useEffect, useMemo, useState } from 'react';
+import { setAudioModeAsync, useAudioPlayerStatus, useAudioRecorderState } from 'expo-audio';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { playUri, useRemoteOrLocalPlayer } from '@/src/services/audio/audioPlaybackService';
 import {
@@ -14,9 +14,22 @@ export function useAudioPractice(recordedUri: string | null) {
   const recorder = useAppRecorder();
   const recorderState = useAudioRecorderState(recorder);
   const player = useRemoteOrLocalPlayer(recordedUri);
+  const playbackStatus = useAudioPlayerStatus(player);
+  const onPlaybackCompleteRef = useRef<(() => void) | null>(null);
 
   const [micGranted, setMicGranted] = useState(false);
   const [audioReady, setAudioReady] = useState(false);
+
+  useEffect(() => {
+    onPlaybackCompleteRef.current = null;
+  }, [recordedUri]);
+
+  useEffect(() => {
+    if (!playbackStatus.didJustFinish || !onPlaybackCompleteRef.current) return;
+    const cb = onPlaybackCompleteRef.current;
+    onPlaybackCompleteRef.current = null;
+    cb();
+  }, [playbackStatus.didJustFinish]);
 
   useEffect(() => {
     void (async () => {
@@ -57,12 +70,16 @@ export function useAudioPractice(recordedUri: string | null) {
     return finishRecording(recorder);
   };
 
-  const playRecording = async () => {
-    if (!recordedUri) {
-      return;
-    }
-    await playUri(player, recordedUri);
-  };
+  const playRecording = useCallback(
+    async (onPlaybackComplete?: () => void) => {
+      if (!recordedUri) {
+        return;
+      }
+      onPlaybackCompleteRef.current = onPlaybackComplete ?? null;
+      await playUri(player, recordedUri);
+    },
+    [player, recordedUri],
+  );
 
   const status = useMemo(
     () => ({

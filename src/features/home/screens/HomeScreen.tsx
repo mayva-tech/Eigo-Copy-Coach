@@ -1,29 +1,46 @@
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
+import { useMemo, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import FocusAreaRow from '@/src/components/ui/FocusAreaRow';
 import LessonHeroCard from '@/src/components/ui/LessonHeroCard';
 import ScreenContainer from '@/src/components/ui/ScreenContainer';
+import SecondaryButton from '@/src/components/ui/SecondaryButton';
+import ToeicWordSearchModal from '@/src/components/ui/ToeicWordSearchModal';
 import SectionLabel from '@/src/components/ui/SectionLabel';
 import StatCard from '@/src/components/ui/StatCard';
 import { ROUTES } from '@/src/constants/routes';
 import { FOCUS_AREAS } from '@/src/data/focusAreas';
 import { homeScreenJa } from '@/src/data/homeTranslations';
-import { getLessonTitle, getLessonTitleJa } from '@/src/services/content/lessonRepository';
+import { getLessonTitle, getLessonTitleJa, LESSON_TOEIC_ID } from '@/src/services/content/lessonRepository';
+import { useToeicPracticeStore } from '@/src/store/useToeicPracticeStore';
+import { useToeicWordStatsStore } from '@/src/store/useToeicWordStatsStore';
 import { theme } from '@/src/theme/pronunciationTheme';
+import { aggregateHomeDashboardStats } from '@/src/utils/activityCalendar';
 
 const DEFAULT_LESSON_ID = 'lesson-01';
 
-/** Placeholder stats until streak / analytics are wired. */
-const MOCK_STREAK = '7';
-const MOCK_CLARITY = '83%';
-const MOCK_WORDS = '24';
-
 export default function HomeScreen() {
-  const lessonId = DEFAULT_LESSON_ID;
-  const lessonTitle = getLessonTitle(lessonId);
-  const lessonTitleJa = getLessonTitleJa(lessonId);
+  const [toeicSearchOpen, setToeicSearchOpen] = useState(false);
+  const toeicStatsById = useToeicWordStatsStore((s) => s.byId);
+  const { streakDays, avgClarityPercent, wordsDoneCount } = useMemo(
+    () => aggregateHomeDashboardStats(toeicStatsById),
+    [toeicStatsById],
+  );
+
+  const streakDisplay = String(streakDays);
+  const clarityDisplay = avgClarityPercent != null ? `${avgClarityPercent}%` : '—';
+  const wordsDoneDisplay = String(wordsDoneCount);
+
+  const toeicPracticeWords = useToeicPracticeStore((s) => s.words);
+  /** Persisted words added from TOEIC vocab (any pronunciation type) — same queue as `lesson-toeic` practice. */
+  const hasToeicPracticeQueue = toeicPracticeWords.length > 0;
+  const heroLessonId = hasToeicPracticeQueue ? LESSON_TOEIC_ID : DEFAULT_LESSON_ID;
+  const lessonTitle = getLessonTitle(heroLessonId);
+  const lessonTitleJa = hasToeicPracticeQueue
+    ? `${getLessonTitleJa(LESSON_TOEIC_ID)}（${toeicPracticeWords.length}語）`
+    : getLessonTitleJa(heroLessonId);
 
   return (
     <ScreenContainer>
@@ -47,14 +64,18 @@ export default function HomeScreen() {
 
       <View style={styles.statsRow}>
         <StatCard
-          value={MOCK_STREAK}
+          value={streakDisplay}
           labelLine1="DAY"
           labelLine2="STREAK"
           captionJa={homeScreenJa.statStreakCaption}
         />
-        <StatCard value={MOCK_CLARITY} labelLine1="CLARITY" captionJa={homeScreenJa.statClarityCaption} />
         <StatCard
-          value={MOCK_WORDS}
+          value={clarityDisplay}
+          labelLine1="CLARITY"
+          captionJa={homeScreenJa.statClarityCaption}
+        />
+        <StatCard
+          value={wordsDoneDisplay}
           labelLine1="WORDS"
           labelLine2="DONE"
           captionJa={homeScreenJa.statWordsCaption}
@@ -66,7 +87,28 @@ export default function HomeScreen() {
         lessonTitleJa={lessonTitleJa}
         nowPracticingJa={homeScreenJa.nowPracticingEyebrow}
         continuePracticeJa={homeScreenJa.continuePracticeJa}
-        onContinue={() => router.push(`/practice/${lessonId}`)}
+        onContinue={() =>
+          hasToeicPracticeQueue
+            ? router.push(ROUTES.PRACTICE_TOEIC)
+            : router.push(`/practice/${DEFAULT_LESSON_ID}`)
+        }
+      />
+      <View style={styles.searchWordWrap}>
+        <SecondaryButton
+          label="Search word"
+          labelSuffixJa="たんごけんさく"
+          onPress={() => setToeicSearchOpen(true)}
+          style={styles.searchWordButton}
+        />
+      </View>
+
+      <ToeicWordSearchModal
+        visible={toeicSearchOpen}
+        onClose={() => setToeicSearchOpen(false)}
+        onSelectWordId={(wordId: number) => {
+          setToeicSearchOpen(false);
+          router.push({ pathname: '/toeic', params: { wordId: String(wordId) } });
+        }}
       />
 
       <SectionLabel subtitleJa={homeScreenJa.toeicEyebrow} style={styles.sectionAfterHero}>
@@ -85,7 +127,7 @@ export default function HomeScreen() {
               <Text style={styles.toeicTitleJa}> {homeScreenJa.toeicTitleJa}</Text>
             </Text>
             <Text style={styles.toeicSubtitle}>
-              100 high-value words · stress hints · listen
+              300 high-value words · stress hints · listen
               <Text style={styles.toeicSubtitleJa}> {homeScreenJa.toeicSubtitleJa}</Text>
             </Text>
           </View>
@@ -159,7 +201,16 @@ const styles = StyleSheet.create({
     marginBottom: theme.space.md,
   },
   sectionAfterHero: {
-    marginTop: theme.space.md,
+    marginTop: theme.space.sm,
+  },
+  searchWordWrap: {
+    alignItems: 'center',
+    marginTop: theme.space.sm,
+    marginBottom: theme.space.xs,
+  },
+  searchWordButton: {
+    width: '68%',
+    minHeight: 40,
   },
   toeicCard: {
     backgroundColor: theme.colors.surfaceElevated,

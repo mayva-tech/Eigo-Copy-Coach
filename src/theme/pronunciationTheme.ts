@@ -17,6 +17,12 @@ export const theme = {
     onDark: '#F9F5F0',
     accentGold: '#C5A367',
     accentGoldDeep: '#9A7A45',
+    /** Muted steel blue — meaning / tips and similar “learn more” CTAs. */
+    accentBlue: '#4A6787',
+    onAccentBlue: '#FFFFFF',
+    /** Lighter blue fill (e.g. back / secondary within blue family). */
+    accentBlueLight: '#9FB8CE',
+    onAccentBlueLight: '#2A3D4F',
     accentSand: '#D4B896',
     terracotta: '#B35C44',
     terracottaRing: '#C9A067',
@@ -26,6 +32,9 @@ export const theme = {
     retrySoft: '#F3E8D4',
     practiceTerracotta: '#A65D50',
     practiceSoft: '#F0E0DC',
+    /** Muted cool tint for example-sentence blocks — reads “light blue” without breaking warm UI. */
+    exampleSentenceSoft: '#E6EEF3',
+    exampleSentenceBorder: '#C2CED6',
     dangerText: '#A65D50',
     white: '#FFFFFF',
   },

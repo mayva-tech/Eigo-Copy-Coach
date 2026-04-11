@@ -8,9 +8,17 @@ type RecordButtonProps = {
   isRecording: boolean;
   onPress: () => void;
   disabled?: boolean;
+  /** Smaller circle — e.g. beside play in {@link PromptCard}. */
+  compact?: boolean;
 };
 
-export default function RecordButton({ isRecording, onPress, disabled }: RecordButtonProps) {
+const DIM = {
+  default: { outer: 100, mid: 86, inner: 68, icon: 28 },
+  compact: { outer: 64, mid: 56, inner: 48, icon: 22 },
+} as const;
+
+export default function RecordButton({ isRecording, onPress, disabled, compact }: RecordButtonProps) {
+  const d = compact ? DIM.compact : DIM.default;
   const pulse = useRef(new Animated.Value(1)).current;
 
   useEffect(() => {
@@ -40,27 +48,33 @@ export default function RecordButton({ isRecording, onPress, disabled }: RecordB
     return undefined;
   }, [isRecording, pulse]);
 
+  const outerStyle = [
+    styles.outerRing,
+    { width: d.outer, height: d.outer, borderRadius: d.outer / 2 },
+  ];
+  const midStyle = [styles.midRing, { width: d.mid, height: d.mid, borderRadius: d.mid / 2 }];
+  const innerStyle = [
+    styles.inner,
+    { width: d.inner, height: d.inner, borderRadius: d.inner / 2 },
+    isRecording && styles.innerActive,
+    isRecording && { transform: [{ scale: pulse }] },
+  ];
+
   return (
     <Pressable
       onPress={onPress}
       disabled={disabled}
       style={({ pressed }) => [
-        styles.outerRing,
+        outerStyle,
         disabled && styles.disabled,
         pressed && !disabled && styles.pressed,
       ]}
       accessibilityRole="button"
       accessibilityLabel={isRecording ? 'Stop recording' : 'Start recording'}
     >
-      <View style={styles.midRing}>
-        <Animated.View
-          style={[
-            styles.inner,
-            isRecording && styles.innerActive,
-            isRecording && { transform: [{ scale: pulse }] },
-          ]}
-        >
-          <Ionicons name="mic" size={28} color={theme.colors.white} />
+      <View style={midStyle}>
+        <Animated.View style={innerStyle}>
+          <Ionicons name="mic" size={d.icon} color={theme.colors.white} />
         </Animated.View>
       </View>
     </Pressable>
@@ -69,9 +83,6 @@ export default function RecordButton({ isRecording, onPress, disabled }: RecordB
 
 const styles = StyleSheet.create({
   outerRing: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
     borderWidth: 2,
     borderColor: theme.colors.terracottaRing,
     backgroundColor: theme.colors.surfaceSoft,
@@ -79,18 +90,12 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   midRing: {
-    width: 86,
-    height: 86,
-    borderRadius: 43,
     borderWidth: 2,
     borderColor: theme.colors.accentSand,
     alignItems: 'center',
     justifyContent: 'center',
   },
   inner: {
-    width: 68,
-    height: 68,
-    borderRadius: 34,
     backgroundColor: theme.colors.terracotta,
     alignItems: 'center',
     justifyContent: 'center',

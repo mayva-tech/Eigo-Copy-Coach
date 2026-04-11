@@ -1,24 +1,24 @@
+import { Ionicons } from '@expo/vector-icons';
 import { createAudioPlayer, type AudioPlayer } from 'expo-audio';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useCallback, useEffect, useRef } from 'react';
-import { Alert, Animated, Pressable, StyleSheet, Text, View } from 'react-native';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { Alert, Animated, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import FeedbackCard from '@/src/components/ui/FeedbackCard';
 import PracticeActions from '@/src/components/ui/PracticeActions';
 import PrimaryButton from '@/src/components/ui/PrimaryButton';
 import ProgressHeader from '@/src/components/ui/ProgressHeader';
 import PromptCard from '@/src/components/ui/PromptCard';
-import RecordButton from '@/src/components/ui/RecordButton';
 import ScreenContainer from '@/src/components/ui/ScreenContainer';
 import SecondaryButton from '@/src/components/ui/SecondaryButton';
 import TipCard from '@/src/components/ui/TipCard';
-import WaveformDisplay from '@/src/components/ui/WaveformDisplay';
 import { ROUTES } from '@/src/constants/routes';
 import { useAudioPractice } from '@/src/features/practice/hooks/useAudioPractice';
 import { usePracticeSession } from '@/src/features/practice/hooks/usePracticeSession';
+import { analyzeClarityVsTts } from '@/src/services/audio/clarityAnalysis';
 import { playUri } from '@/src/services/audio/audioPlaybackService';
 import { speakEnglishWord } from '@/src/services/audio/referenceSpeech';
-import { getLessonTitle } from '@/src/services/content/lessonRepository';
+import { getLessonTitle, LESSON_TOEIC_ID } from '@/src/services/content/lessonRepository';
 import { getPremiumVoicePaywallTrigger } from '@/src/services/paywall/paywallTriggers';
 import { getLessonAudio } from '@/src/services/tts/getLessonAudio';
 import { usePlanStore } from '@/src/store/planStore';
@@ -26,8 +26,12 @@ import { theme, typography } from '@/src/theme/pronunciationTheme';
 
 export default function PracticeScreen() {
   const router = useRouter();
-  const params = useLocalSearchParams<{ lessonId?: string }>();
-  const lessonId = params.lessonId ?? 'lesson-01';
+  const params = useLocalSearchParams<{ lessonId?: string | string[]; wordId?: string | string[] }>();
+  const lessonIdRaw = params.lessonId;
+  const lessonId = (Array.isArray(lessonIdRaw) ? lessonIdRaw[0] : lessonIdRaw) ?? 'lesson-01';
+  const wordIdRaw = params.wordId;
+  const initialWordId =
+    wordIdRaw != null ? (Array.isArray(wordIdRaw) ? wordIdRaw[0] : wordIdRaw) : undefined;
   const lessonTitle = getLessonTitle(lessonId);
 
   const plan = usePlanStore((state) => state.plan);
@@ -36,7 +40,6 @@ export default function PracticeScreen() {
   const markPaywallSeen = usePlanStore((state) => state.markPaywallSeen);
 
   const referencePlayerRef = useRef<AudioPlayer | null>(null);
-  const replayPop = useRef(new Animated.Value(1)).current;
   const slowPop = useRef(new Animated.Value(1)).current;
 
   useEffect(() => {
@@ -60,9 +63,23 @@ export default function PracticeScreen() {
     nextWord,
     previousWord,
     retryCurrentWord,
-  } = usePracticeSession(lessonId);
+  } = usePracticeSession(lessonId, initialWordId);
+
+  const toeicHeadwordIdForNav = useMemo(() => {
+    const id = currentWord?.id;
+    if (id == null || !id.startsWith('toeic-')) return null;
+    const n = parseInt(id.slice('toeic-'.length), 10);
+    return Number.isNaN(n) ? null : n;
+  }, [currentWord?.id]);
 
   const audio = useAudioPractice(recordedUri);
+  const [clarity, setClarity] = useState<{ score: number; labelJa: string } | null>(null);
+  const [clarityBusy, setClarityBusy] = useState(false);
+
+  useEffect(() => {
+    setClarity(null);
+    setClarityBusy(false);
+  }, [currentWord?.id]);
 
   const openPaywall = useCallback(
     (reason: string) => {
@@ -170,19 +187,33 @@ export default function PracticeScreen() {
   };
 
   const handleReplayRecording = () => {
-    Animated.sequence([
-      Animated.timing(replayPop, {
-        toValue: 1.14,
-        duration: 110,
-        useNativeDriver: true,
-      }),
-      Animated.timing(replayPop, {
-        toValue: 1,
-        duration: 140,
-        useNativeDriver: true,
-      }),
-    ]).start();
-    void audio.playRecording();
+    void audio.playRecording(() => {
+      void (async () => {
+        if (!recordedUri || !currentWord) return;
+        setClarityBusy(true);
+        try {
+          const ttsUri = await getLessonAudio({
+            text: currentWord.word,
+            usePremiumVoice: plan === 'premium',
+            mode: 'normal',
+          });
+          const result = await analyzeClarityVsTts({
+            userRecordingUri: recordedUri,
+            ttsUri,
+            sessionScore: feedback.score,
+          });
+          setClarity({ score: result.score, labelJa: result.labelJa });
+        } catch {
+          const s = feedback.score;
+          setClarity({
+            score: Math.round(s != null ? s : 78),
+            labelJa: 'はっきり度（かんたん）',
+          });
+        } finally {
+          setClarityBusy(false);
+        }
+      })();
+    });
   };
 
   const handleSlowTap = () => {
@@ -201,10 +232,18 @@ export default function PracticeScreen() {
     void handlePlayReferenceAudio('slow', plan === 'premium');
   };
 
-  if (!currentWord) {
+  if (!currentWord || words.length === 0) {
+    const emptyToeic = lessonId === LESSON_TOEIC_ID;
     return (
-      <ScreenContainer>
-        <Text style={styles.emptyTitle}>レッスンがみつからない</Text>
+      <ScreenContainer contentStyle={styles.screenContent}>
+        <Text style={styles.emptyTitle}>
+          {emptyToeic ? 'TOEIC れんしゅうリストはまだからです' : 'レッスンがみつからない'}
+        </Text>
+        {emptyToeic ? (
+          <Text style={styles.emptySubtitle}>
+            TOEIC たんご画面の「＋」をタップして、たんごをリストに追加してね。
+          </Text>
+        ) : null}
         <PrimaryButton label="ホームへもどる" onPress={() => router.replace(ROUTES.HOME)} />
       </ScreenContainer>
     );
@@ -232,16 +271,61 @@ export default function PracticeScreen() {
         onBack={handleBack}
       />
 
+      <View style={styles.quickNavRow}>
+        <Pressable
+          onPress={() => router.push(ROUTES.ONBOARDING)}
+          style={({ pressed }) => [styles.quickNavBtn, pressed && styles.quickNavPressed]}
+          accessibilityRole="button"
+          accessibilityLabel="オンボーディングへ"
+        >
+          <Ionicons name="school-outline" size={20} color={theme.colors.terracotta} />
+          <View style={styles.quickNavTextCol}>
+            <Text style={styles.quickNavTitle}>Start guide</Text>
+            <Text style={styles.quickNavJa}>はじめに</Text>
+          </View>
+        </Pressable>
+        {toeicHeadwordIdForNav != null ? (
+          <Pressable
+            onPress={() =>
+              router.push({
+                pathname: ROUTES.TOEIC,
+                params: { wordId: String(toeicHeadwordIdForNav) },
+              })
+            }
+            style={({ pressed }) => [styles.quickNavBtn, pressed && styles.quickNavPressed]}
+            accessibilityRole="button"
+            accessibilityLabel="TOEIC たんごカードへ"
+          >
+            <Ionicons name="book-outline" size={20} color={theme.colors.accentGoldDeep} />
+            <View style={styles.quickNavTextCol}>
+              <Text style={styles.quickNavTitle}>TOEIC word</Text>
+              <Text style={styles.quickNavJa}>たんごカード</Text>
+            </View>
+          </Pressable>
+        ) : null}
+      </View>
+
       <PromptCard
         word={currentWord.word}
         meaningJa={currentWord.meaningJa}
         onListen={() => void handlePlayReferenceAudio('normal', plan === 'premium')}
+        isRecording={audio.status.isRecording}
+        onRecordPress={toggleRecord}
+        recordDisabled={!audio.status.audioReady}
+        hasRecording={audio.status.hasRecording}
+        onReplayRecording={handleReplayRecording}
+        clarityScore={clarity?.score ?? null}
+        clarityLabelJa={clarity?.labelJa ?? null}
+        clarityBusy={clarityBusy}
       />
 
       <View style={styles.audioExtras}>
         <Animated.View style={[styles.popWrap, { transform: [{ scale: slowPop }] }]}>
           <Pressable onPress={handleSlowTap} style={({ pressed }) => pressed && styles.linkPressed}>
-            <Text style={[styles.link, styles.slowLink]}>Slow</Text>
+            <Text style={[styles.link, styles.slowLink]}>
+              Slow
+              <Text style={styles.slowLinkJa}> ゆっくり</Text>
+            </Text>
           </Pressable>
         </Animated.View>
         <Text style={styles.dot}>·</Text>
@@ -249,27 +333,6 @@ export default function PracticeScreen() {
           <Pressable onPress={handlePremiumPreviewTap}>
             <Text style={styles.link}>Natural voice</Text>
           </Pressable>
-        ) : null}
-      </View>
-
-      <WaveformDisplay variant="gold" />
-
-      <View style={styles.recordBlock}>
-        <RecordButton
-          isRecording={audio.status.isRecording}
-          onPress={toggleRecord}
-          disabled={!audio.status.audioReady}
-        />
-        <Text style={styles.tapLabel}>Tap to speak タップしていう</Text>
-        {audio.status.hasRecording ? (
-          <Animated.View style={[styles.replayPopWrap, { transform: [{ scale: replayPop }] }]}>
-            <Pressable
-              onPress={handleReplayRecording}
-              style={({ pressed }) => [styles.replayHit, pressed && styles.replayPressed]}
-            >
-              <Text style={styles.replay}>Play my recording</Text>
-            </Pressable>
-          </Animated.View>
         ) : null}
       </View>
 
@@ -290,10 +353,19 @@ export default function PracticeScreen() {
       />
 
       <View style={styles.navRow}>
-        <SecondaryButton label="Previous" labelSuffixJa="まえへ" onPress={previousWord} flex={1} />
+        <SecondaryButton
+          label="Previous"
+          labelSuffixJa="まえへ"
+          labelStyle={styles.navActionLabelEn}
+          labelJaStyle={styles.navActionLabelJa}
+          onPress={previousWord}
+          flex={1}
+        />
         <PrimaryButton
           label={isLast ? 'Done' : 'Next word'}
           labelSuffixJa={isLast ? 'おわる' : 'つぎのたんご'}
+          labelStyle={styles.navActionLabelEn}
+          labelJaStyle={styles.navActionLabelJa}
           onPress={isLast ? finishSession : nextWord}
           flex={1}
         />
@@ -308,10 +380,50 @@ const styles = StyleSheet.create({
     paddingBottom: theme.space.lg,
     gap: theme.space.xs,
   },
+  quickNavRow: {
+    flexDirection: 'row',
+    gap: theme.space.xs,
+    marginBottom: theme.space.xs,
+  },
+  quickNavBtn: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    paddingVertical: 10,
+    paddingHorizontal: 8,
+    borderRadius: theme.radius.md,
+    borderWidth: 1,
+    borderColor: theme.colors.borderSubtle,
+    backgroundColor: theme.colors.surfaceSoft,
+  },
+  quickNavPressed: {
+    opacity: 0.88,
+  },
+  quickNavTextCol: {
+    gap: 0,
+  },
+  quickNavTitle: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: theme.colors.text,
+  },
+  quickNavJa: {
+    fontSize: 10,
+    fontWeight: '600',
+    color: theme.colors.textMuted,
+  },
   emptyTitle: {
     fontFamily: theme.fontDisplay,
     fontSize: 22,
     color: theme.colors.text,
+    marginBottom: theme.space.sm,
+  },
+  emptySubtitle: {
+    fontSize: 14,
+    lineHeight: 20,
+    color: theme.colors.textSecondary,
     marginBottom: theme.space.md,
   },
   audioExtras: {
@@ -331,45 +443,44 @@ const styles = StyleSheet.create({
   slowLink: {
     fontSize: 15,
   },
+  slowLinkJa: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: theme.colors.textMuted,
+  },
   dot: {
     color: theme.colors.textMuted,
     fontSize: 14,
   },
-  recordBlock: {
-    alignItems: 'center',
-    gap: theme.space.xs,
-    marginVertical: 4,
-  },
-  tapLabel: {
-    fontFamily: theme.fontDisplay,
-    fontSize: 13,
-    color: theme.colors.textSecondary,
-  },
-  replayHit: {
-    paddingVertical: 2,
-  },
-  replayPopWrap: {
-    alignSelf: 'center',
-  },
   popWrap: {
     alignSelf: 'center',
   },
-  replayPressed: {
-    opacity: 0.8,
-  },
   linkPressed: {
     opacity: 0.82,
-  },
-  replay: {
-    fontSize: 13,
-    fontWeight: '600',
-    color: theme.colors.textMuted,
-    textDecorationLine: 'underline',
   },
   navRow: {
     flexDirection: 'row',
     gap: theme.space.xs,
     alignItems: 'stretch',
     marginTop: 4,
+  },
+  navActionLabelEn: {
+    fontFamily: Platform.select({
+      ios: 'System',
+      android: 'sans-serif',
+      default: 'sans-serif',
+    }),
+    fontSize: 15,
+    fontWeight: '700',
+  },
+  navActionLabelJa: {
+    fontFamily: Platform.select({
+      ios: 'System',
+      android: 'sans-serif',
+      default: 'sans-serif',
+    }),
+    fontSize: 15,
+    fontWeight: '400',
+    color: theme.colors.text,
   },
 });
