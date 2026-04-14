@@ -1,8 +1,9 @@
 import cors from 'cors';
 import 'dotenv/config';
-import express from 'express';
+import express, { type NextFunction, type Request, type Response } from 'express';
 import fs from 'fs';
 import crypto from 'node:crypto';
+import pronunciationRouter from './pronunciationRouter.js';
 import { synthesizeSpeech } from './tts.js';
 
 const keyPath = (process.env.GOOGLE_APPLICATION_CREDENTIALS || '').trim();
@@ -35,7 +36,8 @@ if (!keyPath) {
 const app = express();
 
 app.use(cors());
-app.use(express.json({ limit: '1mb' }));
+app.use(express.json({ limit: '10mb' }));
+app.use(pronunciationRouter);
 app.get('/', (_req, res) => {
   res.json({ message: 'TTS backend is running' });
 });
@@ -46,7 +48,7 @@ app.get('/health', (_req, res) => {
 app.get('/tts', (_req, res) => {
   res.status(405).set('Allow', 'POST').json({
     error:
-      'TTS uses POST, not GET. Send JSON: { "text": "hello", "mode": "headword_normal" | "headword_slow" | "phrase_baseline" | "phrase_fast" }. Example (PowerShell): Invoke-RestMethod -Uri http://192.168.68.66:8080/tts -Method Post -ContentType "application/json" -Body \'{"text":"hello"}\'',
+      'TTS uses POST, not GET. Send JSON: { "text": "hello", "mode": "headword_normal" | "headword_slow" | "phrase_baseline" | "phrase_fast" }. Example (PowerShell): Invoke-RestMethod -Uri http://192.168.11.40:8080/tts -Method Post -ContentType "application/json" -Body \'{"text":"hello"}\'',
   });
 });
 
@@ -113,10 +115,26 @@ app.post('/tts', async (req, res) => {
   }
 });
 
+// JSON 404 so mobile clients never get HTML (avoids JSON.parse errors on `<!DOCTYPE...`).
+app.use((req: Request, res: Response) => {
+  res.status(404).json({
+    error: `No route for ${req.method} ${req.path}`,
+    hint: 'POST /tts for TTS, POST /score-pronunciation for pronunciation scoring.',
+  });
+});
+
+app.use((err: unknown, _req: Request, res: Response, _next: NextFunction) => {
+  console.error('[express]', err);
+  if (!res.headersSent) {
+    const message = err instanceof Error ? err.message : String(err);
+    res.status(500).json({ error: message });
+  }
+});
+
 const port = Number(process.env.PORT || 8080);
 
 app.listen(port, '0.0.0.0', () => {
   console.log('TTS server running on:');
   console.log(`- http://localhost:${port}  (this PC only)`);
-  console.log(`- http://192.168.68.66:${port}  (phone / other device on same Wi‑Fi)`);
+  console.log(`- http://192.168.11.40:${port}  (phone / other device on same Wi‑Fi — update if your PC IPv4 changes)`);
 });

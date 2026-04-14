@@ -27,6 +27,7 @@ import { pronunciationFocusParts } from '@/src/data/pronunciationFocusJa';
 import { TOEIC_WORDS } from '@/src/data/toeicWords';
 import { useAudioPractice } from '@/src/features/practice/hooks/useAudioPractice';
 import {
+  speakEnglishHeadword,
   speakEnglishPhraseSample,
   speakEnglishWord,
   speakJapaneseText,
@@ -166,16 +167,17 @@ export default function ToeicVocabScreen() {
     setFlipped(false);
   }, [params.wordId]);
 
+  const pronunciationTypeExamples = useMemo(() => {
+    const w = TOEIC_WORDS[wordIndex];
+    if (!w) return [];
+    return TOEIC_WORDS.filter((x) => x.difficulty === w.difficulty)
+      .filter((x) => x.id !== w.id)
+      .slice(0, 7);
+  }, [wordIndex]);
+
   if (!word) return null;
 
   const pronunciationFocus = pronunciationFocusParts(word.difficulty);
-  const pronunciationTypeExamples = useMemo(
-    () =>
-      TOEIC_WORDS.filter((w) => w.difficulty === word.difficulty)
-        .filter((w) => w.id !== word.id)
-        .slice(0, 7),
-    [word.difficulty, word.id],
-  );
 
   const jumpToWordId = (id: number) => {
     const idx = TOEIC_WORDS.findIndex((w) => w.id === id);
@@ -357,7 +359,7 @@ export default function ToeicVocabScreen() {
                 labelJaStyle={styles.listenPlayLabelJa}
                 onPress={() => {
                   recordHeadwordPlayback(word.id);
-                  void speakEnglishWord(word.word, 'normal');
+                  void speakEnglishHeadword(word.word, 'normal', word.stressHint);
                 }}
                 flex={1}
               />
@@ -368,7 +370,7 @@ export default function ToeicVocabScreen() {
                 labelJaStyle={styles.listenSlowLabelJaSame}
                 onPress={() => {
                   recordHeadwordPlayback(word.id);
-                  void speakEnglishWord(word.word, 'slow');
+                  void speakEnglishHeadword(word.word, 'slow', word.stressHint);
                 }}
                 flex={1}
               />

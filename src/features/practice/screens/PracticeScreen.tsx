@@ -13,11 +13,12 @@ import ScreenContainer from '@/src/components/ui/ScreenContainer';
 import SecondaryButton from '@/src/components/ui/SecondaryButton';
 import TipCard from '@/src/components/ui/TipCard';
 import { ROUTES } from '@/src/constants/routes';
+import { getStressHintForToeicPracticeWordId } from '@/src/data/toeicStressLookup';
 import { useAudioPractice } from '@/src/features/practice/hooks/useAudioPractice';
 import { usePracticeSession } from '@/src/features/practice/hooks/usePracticeSession';
 import { analyzeClarityVsTts } from '@/src/services/audio/clarityAnalysis';
 import { playUri } from '@/src/services/audio/audioPlaybackService';
-import { speakEnglishWord } from '@/src/services/audio/referenceSpeech';
+import { speakEnglishHeadword } from '@/src/services/audio/referenceSpeech';
 import { getLessonTitle, LESSON_TOEIC_ID } from '@/src/services/content/lessonRepository';
 import { getPremiumVoicePaywallTrigger } from '@/src/services/paywall/paywallTriggers';
 import { getLessonAudio } from '@/src/services/tts/getLessonAudio';
@@ -95,8 +96,11 @@ export default function PracticeScreen() {
 
       applyReferenceFeedback(mode);
 
+      const stressHint = getStressHintForToeicPracticeWordId(currentWord.id);
+      const headwordMode = mode === 'slow' ? 'slow' : 'normal';
+
       if (!usePremiumVoice && plan === 'free') {
-        void speakEnglishWord(currentWord.word, mode === 'slow' ? 'slow' : 'normal');
+        void speakEnglishHeadword(currentWord.word, headwordMode, stressHint);
         return true;
       }
 
@@ -109,7 +113,7 @@ export default function PracticeScreen() {
 
         const player = referencePlayerRef.current;
         if (!player) {
-          void speakEnglishWord(currentWord.word, mode === 'slow' ? 'slow' : 'normal');
+          void speakEnglishHeadword(currentWord.word, headwordMode, stressHint);
           return false;
         }
 
@@ -117,7 +121,7 @@ export default function PracticeScreen() {
         return true;
       } catch (error) {
         console.error('Failed to play reference audio', error);
-        void speakEnglishWord(currentWord.word, mode === 'slow' ? 'slow' : 'normal');
+        void speakEnglishHeadword(currentWord.word, headwordMode, stressHint);
         return false;
       }
     },
@@ -339,6 +343,7 @@ export default function PracticeScreen() {
       <FeedbackCard
         lines={feedbackLines}
         tryAgainWord={showTryAgain ? currentWord.word : undefined}
+        wordScores={feedback.wordScores}
       />
 
       <TipCard text={tipText} />

@@ -42,8 +42,8 @@ export default function SettingsScreen() {
       Alert.alert(
         isEnglish ? 'Add your computer address' : 'PCのアドレスを入れてね',
         isEnglish
-          ? 'Use http:// and your PC’s Wi-Fi address, for example http://192.168.68.66:8080 (not localhost on the phone).'
-          : 'http:// からはじまる、PCのWi-Fiのアドレスを使ってね（例: http://192.168.68.66:8080）。スマホでは localhost はだめ。',
+          ? 'Use http:// and your PC’s Wi-Fi address, for example http://192.168.11.40:8080 (not localhost on the phone).'
+          : 'http:// からはじまる、PCのWi-Fiのアドレスを使ってね（例: http://192.168.11.40:8080）。スマホでは localhost はだめ。',
       );
       return;
     }
@@ -100,7 +100,7 @@ export default function SettingsScreen() {
             <TextInput
               value={devTtsUrl}
               onChangeText={setDevTtsUrl}
-              placeholder="http://192.168.68.66:8080"
+              placeholder="http://192.168.11.40:8080"
               placeholderTextColor={colors.textMuted}
               autoCapitalize="none"
               autoCorrect={false}

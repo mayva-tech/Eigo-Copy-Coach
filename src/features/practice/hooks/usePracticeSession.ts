@@ -1,15 +1,22 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 
-import { buildMockFeedback, getInitialFeedback } from '@/src/features/practice/utils/scoreHelpers';
+import {
+  buildFeedbackFromScore,
+  buildNoRecordingFeedback,
+  buildScoringErrorFeedback,
+  getInitialFeedback,
+} from '@/src/features/practice/utils/scoreHelpers';
 import type { PracticeFeedback } from '@/src/features/practice/types/practice.types';
-import { speakEnglishWord } from '@/src/services/audio/referenceSpeech';
+import { getStressHintForToeicPracticeWordId } from '@/src/data/toeicStressLookup';
+import { speakEnglishHeadword } from '@/src/services/audio/referenceSpeech';
 import { getLessonWords, LESSON_TOEIC_ID } from '@/src/services/content/lessonRepository';
+import { scorePronunciationWithRetry } from '../../../services/scoring/scoringBackendClient';
 import { useSessionSummaryStore } from '@/src/store/sessionSummaryStore';
 import { usePracticeStore } from '@/src/store/usePracticeStore';
 import { useToeicPracticeStore } from '@/src/store/useToeicPracticeStore';
 import { useToeicWordStatsStore } from '@/src/store/useToeicWordStatsStore';
 
-/** Words at or below this mock score are saved to the local review queue. */
+/** Words scoring below this threshold are saved to the local review queue. */
 const REVIEW_SCORE_THRESHOLD = 85;
 
 export function usePracticeSession(lessonId: string, initialWordId?: string | null) {
@@ -73,13 +80,15 @@ export function usePracticeSession(lessonId: string, initialWordId?: string | nu
 
   const playNormal = () => {
     if (!currentWord) return;
-    void speakEnglishWord(currentWord.word, 'normal');
+    const stress = getStressHintForToeicPracticeWordId(currentWord.id);
+    void speakEnglishHeadword(currentWord.word, 'normal', stress);
     applyReferenceFeedback('normal');
   };
 
   const playSlow = () => {
     if (!currentWord) return;
-    void speakEnglishWord(currentWord.word, 'slow');
+    const stress = getStressHintForToeicPracticeWordId(currentWord.id);
+    void speakEnglishHeadword(currentWord.word, 'slow', stress);
     applyReferenceFeedback('slow');
   };
 
@@ -94,20 +103,34 @@ export function usePracticeSession(lessonId: string, initialWordId?: string | nu
 
     setRecordedUri(uri);
 
-    const nextAttempt = attemptCount + 1;
-    setAttemptCount(nextAttempt);
+    setAttemptCount((n) => n + 1);
 
-    const nextFeedback = buildMockFeedback(currentWord, nextAttempt);
+    // ── Azure pronunciation assessment (retries in scoringBackendClient) ───
+    let nextFeedback: PracticeFeedback;
+    if (uri) {
+      try {
+        const result = await scorePronunciationWithRetry(uri, currentWord.word);
+        nextFeedback = buildFeedbackFromScore(result);
+      } catch (err) {
+        console.warn('[usePracticeSession] Scoring API failed:', err);
+        nextFeedback = buildScoringErrorFeedback(err);
+      }
+    } else {
+      nextFeedback = buildNoRecordingFeedback();
+    }
+
     setFeedback(nextFeedback);
 
-    const score = nextFeedback.score ?? 0;
-    useSessionSummaryStore.getState().recordWordResult({
-      word: currentWord.word,
-      wordId: currentWord.id,
-      score,
-    });
+    const score = nextFeedback.score;
+    if (score != null) {
+      useSessionSummaryStore.getState().recordWordResult({
+        word: currentWord.word,
+        wordId: currentWord.id,
+        score,
+      });
+    }
 
-    if (score < REVIEW_SCORE_THRESHOLD) {
+    if (score != null && score < REVIEW_SCORE_THRESHOLD) {
       addReviewItem({
         id: `${currentWord.id}-${Date.now()}`,
         wordId: currentWord.id,
@@ -121,7 +144,7 @@ export function usePracticeSession(lessonId: string, initialWordId?: string | nu
       });
     }
 
-    if (currentWord.id.startsWith('toeic-')) {
+    if (score != null && currentWord.id.startsWith('toeic-')) {
       const tail = currentWord.id.slice('toeic-'.length);
       const toeicNumericId = parseInt(tail, 10);
       if (!Number.isNaN(toeicNumericId)) {

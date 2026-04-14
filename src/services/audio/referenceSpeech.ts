@@ -4,6 +4,7 @@ import {
   pauseBackendTtsPlayback,
   playTtsFromBackend,
 } from '@/src/services/audio/backendTtsPlay';
+import { parseStressHintForSpeech, speakStressSyllables } from '@/src/services/audio/stressSpeech';
 import type { TtsBackendMode } from '@/src/services/tts/ttsBackendClient';
 import { getTtsDevBaseUrlOptional } from '@/src/services/tts/ttsBackendClient';
 
@@ -86,6 +87,26 @@ async function speakEnglishWithBackendMode(
 export async function speakEnglishWord(word: string, mode: EnglishHeadwordMode): Promise<void> {
   const backendMode: TtsBackendMode = mode === 'slow' ? 'headword_slow' : 'headword_normal';
   await speakEnglishWithBackendMode(word, backendMode, DEVICE_HEADWORD_RATE[mode]);
+}
+
+/**
+ * Headword with optional TOEIC stress markup (e.g. `pri-ZERV`). Uses hyphen-split
+ * expo-speech with higher pitch on the capitalized syllable when parseable; otherwise
+ * delegates to {@link speakEnglishWord} (backend or flat device TTS).
+ */
+export async function speakEnglishHeadword(
+  word: string,
+  mode: EnglishHeadwordMode,
+  stressHint?: string | null,
+): Promise<void> {
+  const parsed = stressHint ? parseStressHintForSpeech(stressHint) : null;
+  if (parsed && parsed.syllables.length >= 2) {
+    pauseBackendTtsPlayback();
+    await Speech.stop();
+    await speakStressSyllables(parsed, mode);
+    return;
+  }
+  await speakEnglishWord(word, mode);
 }
 
 /**

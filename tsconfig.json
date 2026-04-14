@@ -14,5 +14,7 @@
     "**/*.tsx",
     ".expo/types/**/*.ts",
     "expo-env.d.ts"
-  ]
+  ],
+  "exclude": ["node_modules", "docs/_integration_phase123", "docs/_integration_phase45"]
 }
+
